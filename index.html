@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social - TamilGeo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    /* Smooth transitions */
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+    /* Scrollbar for comment box */
+    .comment-box::-webkit-scrollbar {
+      width: 6px;
+    }
+    .comment-box::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1; /* Tailwind slate-300 */
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
+    <h1 class="text-xl font-bold text-gray-800">Social</h1>
+    <button class="text-gray-700 hover:text-rose-600 transition" aria-label="Refresh Feed">
+      <i class="fa-solid fa-arrows-rotate text-xl"></i>
+    </button>
+  </header>
+
+  <main class="max-w-3xl mx-auto p-4 space-y-6 flex-grow">
+
+    <!-- Status Update Box -->
+    <section class="bg-white rounded-lg shadow p-4">
+      <textarea id="statusInput" rows="3" placeholder="What's on your mind?" 
+        class="w-full p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none transition"></textarea>
+      <div class="flex justify-end mt-3">
+        <button id="postStatusBtn" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded shadow transition">
+          Post
+        </button>
+      </div>
+    </section>
+
+    <!-- Social Feed Posts Container -->
+    <section id="feed" class="space-y-6">
+      <!-- Posts will be appended here dynamically -->
+    </section>
+  </main>
+
+  <script>
+    // Sample posts data for demo
+    const posts = [
+      {
+        id: 'p1',
+        user: {
+          name: 'Anbu',
+          username: 'anbu_tamil',
+          avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        },
+        content: 'Hello TamilGeo! This is my first post here 😊 #excited',
+        likes: 15,
+        comments: [
+          { id: 'c1', user: 'Sundar', text: 'Welcome, Anbu!' },
+          { id: 'c2', user: 'Revathi', text: 'Great to see you here!' }
+        ],
+        shares: 3,
+        time: '2 hours ago',
+      },
+      {
+        id: 'p2',
+        user: {
+          name: 'Meena',
+          username: 'meena_insta',
+          avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+        },
+        content: 'Loving the new updates on TamilGeo social feed!',
+        likes: 25,
+        comments: [],
+        shares: 7,
+        time: '1 hour ago',
+      }
+    ];
+
+    // Helper: Create an element with classes and attributes
+    function createEl(tag, options = {}) {
+      const el = document.createElement(tag);
+      if (options.classes) el.className = options.classes;
+      if (options.attrs) {
+        for (const [k, v] of Object.entries(options.attrs)) {
+          el.setAttribute(k, v);
+        }
+      }
+      if (options.text) el.textContent = options.text;
+      return el;
+    }
+
+    // Render posts
+    function renderPosts() {
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '';
+      posts.forEach(post => {
+        const postEl = createEl('article', { classes: 'bg-white rounded-lg shadow p-4' });
+
+        // Post Header
+        const header = createEl('div', { classes: 'flex items-center gap-3 mb-3' });
+        const avatar = createEl('img', { classes: 'w-12 h-12 rounded-full object-cover', attrs: { src: post.user.avatar, alt: post.user.name } });
+        const userInfo = createEl('div');
+        const name = createEl('p', { classes: 'font-semibold text-gray-900', text: post.user.name });
+        const username = createEl('p', { classes: 'text-sm text-gray-500', text: '@' + post.user.username });
+        const time = createEl('p', { classes: 'text-xs text-gray-400', text: post.time });
+        userInfo.append(name, username, time);
+        header.append(avatar, userInfo);
+
+        // Post Content
+        const content = createEl('p', { classes: 'mb-4 text-gray-800 whitespace-pre-wrap', text: post.content });
+
+        // Post Actions
+        const actions = createEl('div', { classes: 'flex items-center justify-between text-sm select-none' });
+
+        // Like button
+        const likeBtn = createEl('button', { classes: 'flex items-center gap-1 text-rose-600 hover:text-rose-700 transition', attrs: { 'aria-label': 'Like' } });
+        likeBtn.innerHTML = `<i class="fa-regular fa-heart"></i> <span>${post.likes}</span>`;
+
+        // Comment button
+        const commentBtn = createEl('button', { classes: 'flex items-center gap-1 text-blue-600 hover:text-blue-700 transition', attrs: { 'aria-label': 'Comment' } });
+        commentBtn.innerHTML = `<i class="fa-regular fa-comment"></i> <span>${post.comments.length}</span>`;
+
+        // Share button
+        const shareBtn = createEl('button', { classes: 'flex items-center gap-1 text-green-600 hover:text-green-700 transition', attrs: { 'aria-label': 'Share' } });
+        shareBtn.innerHTML = `<i class="fa-solid fa-share"></i> <span>${post.shares}</span>`;
+
+        actions.append(likeBtn, commentBtn, shareBtn);
+
+        // Comment Section (hidden by default)
+        const commentSection = createEl('div', { classes: 'mt-3 hidden' });
+
+        // Existing comments
+        const commentsList = createEl('div', { classes: 'space-y-2 max-h-40 overflow-y-auto comment-box px-2' });
+        post.comments.forEach(c => {
+          const cItem = createEl('div', { classes: 'text-sm bg-gray-100 rounded px-3 py-2' });
+          cItem.innerHTML = `<span class="font-semibold">${c.user}:</span> ${c.text}`;
+          commentsList.appendChild(cItem);
+        });
+
+        // Add new comment box
+        const addCommentForm = createEl('form', { classes: 'flex gap-2 mt-2' });
+        const commentInput = createEl('input', { classes: 'flex-grow border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400', attrs: { type: 'text', placeholder: 'Write a comment...', 'aria-label': 'Write a comment' } });
+        const commentSubmit = createEl('button', { classes: 'bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition', attrs: { type: 'submit' }, text: 'Post' });
+        addCommentForm.append(commentInput, commentSubmit);
+
+        addCommentForm.addEventListener('submit', e => {
+          e.preventDefault();
+          const val = commentInput.value.trim();
+          if (!val) return;
+          post.comments.push({ id: 'c' + Date.now(), user: 'You', text: val });
+          commentInput.value = '';
+          renderPosts();
+        });
+
+        commentSection.append(commentsList, addCommentForm);
+
+        // Toggle comment box on comment button click
+        commentBtn.addEventListener('click', () => {
+          commentSection.classList.toggle('hidden');
+        });
+
+        // Like button toggle (just front-end demo)
+        likeBtn.addEventListener('click', () => {
+          if (likeBtn.classList.contains('liked')) {
+            likeBtn.classList.remove('liked');
+            likeBtn.querySelector('span').textContent = --post.likes;
+            likeBtn.innerHTML = `<i class="fa-regular fa-heart"></i> <span>${post.likes}</span>`;
+          } else {
+            likeBtn.classList.add('liked');
+            likeBtn.querySelector('span').textContent = ++post.likes;
+            likeBtn.innerHTML = `<i class="fa-solid fa-heart"></i> <span>${post.likes}</span>`;
+          }
+        });
+
+        // Share button (simple alert demo)
+        shareBtn.addEventListener('click', () => {
+          alert(`Share this post:\n"${post.content}"`);
+          post.shares++;
+          shareBtn.querySelector('span').textContent = post.shares;
+        });
+
+        postEl.append(header, content, actions, commentSection);
+        feed.appendChild(postEl);
+      });
+    }
+
+    // Post new status
+    document.getElementById('postStatusBtn').addEventListener('click', () => {
+      const val = document.getElementById('statusInput').value.trim();
+      if (!val) return alert('Please write something to post!');
+      posts.unshift({
+        id: 'p' + Date.now(),
+        user: {
+          name: 'You',
+          username: 'you',
+          avatar: 'https://i.pravatar.cc/150?u=you',
+        },
+        content: val,
+        likes: 0,
+        comments: [],
+        shares: 0,
+        time: 'Just now',
+      });
+      document.getElementById('statusInput').value = '';
+      renderPosts();
+    });
+
+    // Initial render
+    renderPosts();
+  </script>
+
+</body>
+</html>
