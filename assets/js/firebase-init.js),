@@ -1,0 +1,25 @@
+// assets/js/firebase-init.js
+// ES module - import this from other modules with `import { app, auth, db } from "/assets/js/firebase-init.js"`
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// <-- your firebase config (from your message) -->
+const firebaseConfig = {
+  apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
+  authDomain: "rivo-bea46.firebaseapp.com",
+  projectId: "rivo-bea46",
+  storageBucket: "rivo-bea46.firebasestorage.app",
+  messagingSenderId: "9253016287",
+  appId: "1:9253016287:web:f584476c79e78215f40f6a",
+  measurementId: "G-RY85VPHXVP"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { app, auth, db, storage };
