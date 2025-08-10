@@ -1,7 +1,19 @@
-// Handle likes
+// ==========================
+// Firebase Social Actions
+// Shared JS for Likes & Comments
+// ==========================
+
+// --------------------------
+// LIKE SYSTEM
+// --------------------------
 function toggleLike(postId) {
-  const userId = firebase.auth().currentUser.uid;
-  const likeRef = firebase.database().ref(`posts/${postId}/likes/${userId}`);
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login to like posts.");
+    return;
+  }
+
+  const likeRef = firebase.database().ref(`posts/${postId}/likes/${user.uid}`);
 
   likeRef.once('value').then(snapshot => {
     if (snapshot.exists()) {
@@ -12,17 +24,55 @@ function toggleLike(postId) {
   });
 }
 
-// Handle comments
+function listenForLikes(postId, likeCountElement, likeButtonElement) {
+  const user = firebase.auth().currentUser;
+  const likesRef = firebase.database().ref(`posts/${postId}/likes`);
+
+  likesRef.on('value', snapshot => {
+    const likes = snapshot.val() || {};
+    likeCountElement.textContent = Object.keys(likes).length;
+
+    if (user && likes[user.uid]) {
+      likeButtonElement.classList.add("liked");
+    } else {
+      likeButtonElement.classList.remove("liked");
+    }
+  });
+}
+
+// --------------------------
+// COMMENT SYSTEM
+// --------------------------
 function addComment(postId, commentText) {
-  const userId = firebase.auth().currentUser.uid;
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login to comment.");
+    return;
+  }
+  if (!commentText.trim()) return;
+
   const commentRef = firebase.database().ref(`posts/${postId}/comments`).push();
-  
   commentRef.set({
-    userId,
-    text: commentText,
+    userId: user.uid,
+    text: commentText.trim(),
     timestamp: firebase.database.ServerValue.TIMESTAMP
   });
 }
 
-// Export if using ES modules
-export { toggleLike, addComment };
+function listenForComments(postId, commentListElement) {
+  const commentsRef = firebase.database().ref(`posts/${postId}/comments`);
+
+  commentsRef.on('child_added', snapshot => {
+    const comment = snapshot.val();
+    if (comment) {
+      const li = document.createElement("li");
+      li.textContent = `${comment.text}`;
+      commentListElement.appendChild(li);
+    }
+  });
+}
+
+// --------------------------
+// EXPORT (if using modules)
+// --------------------------
+// export { toggleLike, listenForLikes, addComment, listenForComments };
