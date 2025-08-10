@@ -1,55 +1,89 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"><title>Rivo - Profile</title>
+  <meta charset="utf-8" />
+  <title>Rivo - Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
-    <div id="profileArea">
-      <!-- Profile content will be injected -->
+  <!-- Header -->
+  <header class="bg-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-violet-700">Rivo</h1>
+      <nav class="flex gap-4">
+        <a href="index.html" class="hover:text-violet-600">Home</a>
+        <a href="explore.html" class="hover:text-violet-600">Explore</a>
+        <a href="profile.html" class="text-violet-600 font-semibold">Profile</a>
+      </nav>
     </div>
-    <div class="mt-4">
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
+    <div id="profileArea" class="animate-pulse text-gray-500">Loading profile...</div>
+
+    <!-- Auth actions -->
+    <div class="mt-4 flex gap-2">
       <button id="signInBtn" class="bg-violet-600 text-white px-3 py-1 rounded">Sign in</button>
-      <button id="signOutBtn" class="hidden px-3 py-1">Sign out</button>
+      <button id="signOutBtn" class="hidden bg-gray-200 px-3 py-1 rounded">Sign out</button>
     </div>
   </main>
 
-<script type="module">
-  import '/assets/js/realtime-app.js';
-  // For demo, open the profile of a sample user ID. Replace with real target id as needed.
-  const sampleTargetUserId = prompt('Enter target user ID to view (for demo)') || 'target_user_id';
+  <!-- Footer -->
+  <footer class="mt-8 py-4 text-center text-gray-400 text-sm">
+    &copy; 2025 Rivo. All rights reserved.
+  </footer>
 
-  // load target user
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(({ getDatabase, ref, onValue }) => {
+  <!-- Scripts -->
+  <script type="module">
+    import '/assets/js/firebase-init.js';
+    import '/assets/js/realtime-app.js';
+
+    const sampleTargetUserId = prompt('Enter target user ID to view (for demo)') || 'target_user_id';
+
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
     const db = getDatabase();
+    const auth = getAuth();
+
     onValue(ref(db, `users/${sampleTargetUserId}`), snap => {
       const root = document.getElementById('profileArea');
-      if (!snap.exists()) { root.innerHTML = `<div>User not found</div>`; return; }
+      if (!snap.exists()) {
+        root.innerHTML = `<div>User not found</div>`;
+        return;
+      }
       const u = snap.val();
-      root.innerHTML = `<div class="flex items-center gap-4">
-        <img src="${u.photoURL||'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
-        <div><div class="text-xl font-semibold">${u.displayName||u.email||'User'}</div><div class="text-sm text-gray-500">${u.bio||''}</div></div>
-      </div>
-      <div class="mt-4">
-        <button id="followBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Follow</button>
-      </div>`;
+      root.innerHTML = `
+        <div class="flex items-center gap-4">
+          <img src="${u.photoURL || 'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
+          <div>
+            <div class="text-xl font-semibold">${u.displayName || u.email || 'User'}</div>
+            <div class="text-sm text-gray-500">${u.bio || ''}</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button id="followBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Follow</button>
+        </div>
+      `;
+
       document.getElementById('followBtn').addEventListener('click', async () => {
-        const auth = (await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')).getAuth();
         const me = auth.currentUser;
-        if (!me) { alert('Sign in to follow'); return; }
+        if (!me) {
+          alert('Sign in to follow');
+          return;
+        }
         await RivoRealtime.followUser(me.uid, sampleTargetUserId);
         alert('Followed');
       });
     });
-  });
 
-  // show/hide signout
-  window.addEventListener('rivo:authChange', (e) => {
-    const u = e.detail;
-    document.getElementById('signOutBtn').classList.toggle('hidden', !u);
-  });
-
-</script>
+    // Auth state handling
+    window.addEventListener('rivo:authChange', (e) => {
+      const u = e.detail;
+      document.getElementById('signOutBtn').classList.toggle('hidden', !u);
+    });
+  </script>
 </body>
 </html>
