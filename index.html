@@ -1,87 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Home - My App</title>
-    <link rel="stylesheet" href="/assets/css/theme.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo - Feed</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <h1>Welcome to My App</h1>
-    </header>
+  <!-- Header -->
+  <header class="app-header">
+    <h1 class="logo">Rivo</h1>
+    <div class="header-icons">
+      <i class="fa-regular fa-paper-plane"></i>
+    </div>
+  </header>
 
-    <!-- Posts Container -->
-    <main>
-        <div id="posts-container"></div>
-    </main>
+  <!-- Stories Section -->
+  <section class="stories" id="stories-container">
+    <!-- Stories will load here from stories.js -->
+  </section>
 
-    <!-- JS Files -->
-    <script type="module" src="/assets/js/firebase-init.js"></script>
-    <script type="module" src="/assets/js/posts.js"></script>
-    <script type="module" src="/assets/js/likes.js"></script>
-    <script type="module" src="/assets/js/comments.js"></script>
+  <!-- Feed Section -->
+  <main class="feed" id="feed-container">
+    <!-- Feed posts will load here from feed.js -->
+  </main>
 
-    <!-- Page Logic -->
-    <script type="module">
-        import { getPosts } from '/assets/js/posts.js';
-        import { toggleLike, listenForLikes } from '/assets/js/likes.js';
-        import { addComment, listenForComments } from '/assets/js/comments.js';
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <i class="fa-solid fa-house"></i>
+    <i class="fa-regular fa-compass"></i>
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-comment-dots"></i>
+    <i class="fa-regular fa-user"></i>
+  </nav>
 
-        async function loadPosts() {
-            const posts = await getPosts();
-            const container = document.getElementById('posts-container');
-            container.innerHTML = '';
-
-            posts.forEach(post => {
-                const postEl = document.createElement('div');
-                postEl.classList.add('post');
-                postEl.innerHTML = `
-                    <h2>${post.title}</h2>
-                    <p>${post.content}</p>
-                    <button class="like-btn" data-id="${post.id}">❤️ Like</button>
-                    <div class="likes-count" id="likes-${post.id}">0 Likes</div>
-                    <input type="text" class="comment-input" data-id="${post.id}" placeholder="Write a comment"/>
-                    <div class="comments" id="comments-${post.id}"></div>
-                `;
-                container.appendChild(postEl);
-
-                // Likes
-                listenForLikes(post.id, (count) => {
-                    document.getElementById(`likes-${post.id}`).textContent = `${count} Likes`;
-                });
-
-                // Comments
-                listenForComments(post.id, (comments) => {
-                    const commentsDiv = document.getElementById(`comments-${post.id}`);
-                    commentsDiv.innerHTML = '';
-                    Object.values(comments).forEach(c => {
-                        const commentEl = document.createElement('div');
-                        commentEl.textContent = `${c.username}: ${c.text}`;
-                        commentsDiv.appendChild(commentEl);
-                    });
-                });
-            });
-
-            // Like click events
-            document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.addEventListener('click', () => toggleLike(btn.dataset.id));
-            });
-
-            // Comment input events
-            document.querySelectorAll('.comment-input').forEach(input => {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && input.value.trim()) {
-                        addComment(input.dataset.id, input.value.trim());
-                        input.value = '';
-                    }
-                });
-            });
-        }
-
-        loadPosts();
-    </script>
+  <!-- Centralized JS Files -->
+  <script type="module" src="assets/js/firebase-init.js"></script>
+  <script type="module" src="assets/js/stories.js"></script>
+  <script type="module" src="assets/js/feed.js"></script>
+  <script type="module" src="assets/js/likes.js"></script>
+  <script type="module" src="assets/js/comments.js"></script>
 </body>
 </html>
