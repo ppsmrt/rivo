@@ -1,76 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Upload - Rivo</title>
+  <meta charset="utf-8">
+  <title>Rivo - Upload</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-4 bg-white">
+<body class="min-h-screen bg-gray-50">
+  <header class="p-4 bg-white shadow">
+    <div class="max-w-3xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold text-violet-600">New Post</h1>
+      <div>
+        <button id="signInBtn" class="bg-violet-600 text-white px-3 py-1 rounded">Sign in</button>
+        <button id="signOutBtn" class="hidden px-3 py-1">Sign out</button>
+      </div>
+    </div>
+  </header>
 
-  <h1 class="text-xl font-semibold mb-4">New Post</h1>
+  <main class="max-w-3xl mx-auto p-6">
+    <form id="uploadForm" class="space-y-4 bg-white p-4 rounded shadow">
+      <label class="block">
+        <div class="text-sm font-semibold">Image URL (for demo)</div>
+        <input id="imageUrl" class="mt-2 w-full border px-3 py-2 rounded" placeholder="https://...jpg" />
+      </label>
+      <label class="block">
+        <div class="text-sm font-semibold">Caption</div>
+        <input id="caption" class="mt-2 w-full border px-3 py-2 rounded" placeholder="Write a caption..." />
+      </label>
+      <div>
+        <button class="bg-violet-600 text-white px-4 py-2 rounded">Post</button>
+      </div>
+    </form>
+  </main>
 
-  <form id="uploadForm" class="space-y-3">
-    <input type="file" id="fileInput" accept="image/*,video/*" required />
-    <input id="caption" placeholder="Write a caption..." class="w-full border px-3 py-2 rounded" />
-    <button class="bg-violet-600 text-white px-4 py-2 rounded">Upload</button>
-  </form>
+<script type="module">
+  import '/assets/js/realtime-app.js';
 
-  <div id="progress" class="mt-4 text-sm text-gray-600"></div>
-
-  <script type="module">
-    import { auth, db, storage } from "/assets/js/firebase-init.js";
-    import { onAuthChanged } from "/assets/js/auth.js";
-    import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const uploadForm = document.getElementById('uploadForm');
-    const fileInput = document.getElementById('fileInput');
-    const captionInput = document.getElementById('caption');
-    const progressEl = document.getElementById('progress');
-
-    let currentUser = null;
-    onAuthChanged(user => currentUser = user);
-
-    uploadForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!currentUser) return alert('Sign in to upload posts');
-
-      const file = fileInput.files[0];
-      if (!file) return alert('Choose a file first');
-
-      // decide folder & filename
-      const ext = file.name.split('.').pop();
-      const id = Date.now().toString();
-      const filePath = `posts/${currentUser.uid}/${id}.${ext}`;
-      const sRef = storageRef(storage, filePath);
-      const uploadTask = uploadBytesResumable(sRef, file);
-
-      uploadTask.on('state_changed', (snapshot) => {
-        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        progressEl.textContent = `Uploading: ${pct}%`;
-      }, (err) => {
-        console.error(err);
-        alert('Upload failed');
-      }, async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        // create post doc
-        const postsCol = collection(db, "posts");
-        const docRef = await addDoc(postsCol, {
-          authorId: currentUser.uid,
-          authorName: currentUser.displayName || currentUser.email,
-          authorPhoto: currentUser.photoURL || "",
-          caption: captionInput.value || "",
-          imageUrl: file.type.startsWith('image/') ? downloadURL : "",
-          videoUrl: file.type.startsWith('video/') ? downloadURL : "",
-          type: file.type.startsWith('video/') ? 'video' : 'image',
-          timestamp: serverTimestamp()
-        });
-        progressEl.textContent = "Upload complete — post created";
-        // optionally redirect to post or feed
-        setTimeout(()=> window.location.href = "/explore.html", 900);
-      });
+  document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = (await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')).getAuth().currentUser;
+    if (!user) { alert('Sign in to post'); return; }
+    const imageUrl = document.getElementById('imageUrl').value.trim();
+    const caption = document.getElementById('caption').value.trim();
+    if (!imageUrl) { alert('Add an image url (demo)'); return; }
+    await RivoRealtime.createPost({
+      authorId: user.uid,
+      authorName: user.displayName || user.email,
+      authorPhoto: user.photoURL || '',
+      imageUrl,
+      caption
     });
-  </script>
+    alert('Post created');
+    window.location.href = '/index.html';
+  });
+
+  // show/hide signout button
+  window.addEventListener('rivo:authChange', (e) => {
+    const u = e.detail;
+    document.getElementById('signOutBtn').classList.toggle('hidden', !u);
+  });
+
+</script>
 </body>
 </html>
