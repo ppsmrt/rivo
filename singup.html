@@ -11,7 +11,7 @@
 
   <!-- Header -->
   <header class="app-header">
-    <h1 class="title">Create Account</h1>
+    <h1 class="title">Sign Up</h1>
   </header>
 
   <!-- Sign Up Form -->
@@ -19,33 +19,27 @@
     <form class="auth-form">
       <div class="input-group">
         <i class="fa fa-user"></i>
-        <input type="text" placeholder="Full Name" required>
+        <input id="signup-name" type="text" placeholder="Full Name" required>
       </div>
 
       <div class="input-group">
         <i class="fa fa-envelope"></i>
-        <input type="email" placeholder="Email" required>
+        <input id="signup-email" type="email" placeholder="Email" required>
       </div>
 
       <div class="input-group">
         <i class="fa fa-lock"></i>
-        <input type="password" placeholder="Password" required>
+        <input id="signup-password" type="password" placeholder="Password" required>
       </div>
 
       <button type="submit" class="btn-primary">
-        <i class="fa fa-arrow-right"></i>
+        <i class="fa fa-user-plus"></i>
       </button>
     </form>
-
-    <!-- Social Login -->
-    <div class="social-login">
-      <button class="social-btn google"><i class="fab fa-google"></i></button>
-      <button class="social-btn facebook"><i class="fab fa-facebook-f"></i></button>
-    </div>
 
     <p class="form-footer">Already have an account? <a href="signin.html">Sign In</a></p>
   </main>
 
-  <script src="assets/js/app.js"></script>
+  <script src="assets/js/auth.js" type="module"></script>
 </body>
 </html>
