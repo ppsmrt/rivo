@@ -1,91 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rivo - Home</title>
-  <link rel="stylesheet" href="assets/css/theme.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Home - My App</title>
+    <link rel="stylesheet" href="/assets/css/theme.css" />
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="app-header">
-    <h1 class="logo">Rivo</h1>
-    <div class="header-icons">
-      <i class="fa-regular fa-paper-plane"></i>
-    </div>
-  </header>
+    <!-- Header -->
+    <header>
+        <h1>Welcome to My App</h1>
+    </header>
 
-  <!-- Stories -->
-  <section class="stories" id="stories"></section>
+    <!-- Posts Container -->
+    <main>
+        <div id="posts-container"></div>
+    </main>
 
-  <!-- Main Feed -->
-  <main class="feed" id="feed"></main>
+    <!-- JS Files -->
+    <script type="module" src="/assets/js/firebase-init.js"></script>
+    <script type="module" src="/assets/js/posts.js"></script>
+    <script type="module" src="/assets/js/likes.js"></script>
+    <script type="module" src="/assets/js/comments.js"></script>
 
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <a href="index.html"><i class="fa-solid fa-house"></i></a>
-    <a href="explore.html"><i class="fa-regular fa-compass"></i></a>
-    <a href="upload.html"><i class="fa-regular fa-square-plus"></i></a>
-    <a href="messages.html"><i class="fa-regular fa-comment-dots"></i></a>
-    <a href="account.html"><i class="fa-regular fa-user"></i></a>
-  </nav>
+    <!-- Page Logic -->
+    <script type="module">
+        import { getPosts } from '/assets/js/posts.js';
+        import { toggleLike, listenForLikes } from '/assets/js/likes.js';
+        import { addComment, listenForComments } from '/assets/js/comments.js';
 
-  <!-- Shared JS -->
-  <script src="assets/js/firebase-init.js"></script>
-  <script src="assets/js/social-actions.js"></script>
+        async function loadPosts() {
+            const posts = await getPosts();
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
 
-  <!-- Page Specific JS -->
-  <script>
-    const storiesContainer = document.getElementById('stories');
-    const feedContainer = document.getElementById('feed');
+            posts.forEach(post => {
+                const postEl = document.createElement('div');
+                postEl.classList.add('post');
+                postEl.innerHTML = `
+                    <h2>${post.title}</h2>
+                    <p>${post.content}</p>
+                    <button class="like-btn" data-id="${post.id}">❤️ Like</button>
+                    <div class="likes-count" id="likes-${post.id}">0 Likes</div>
+                    <input type="text" class="comment-input" data-id="${post.id}" placeholder="Write a comment"/>
+                    <div class="comments" id="comments-${post.id}"></div>
+                `;
+                container.appendChild(postEl);
 
-    // Load Stories
-    firebase.database().ref('stories').on('value', snapshot => {
-      storiesContainer.innerHTML = '';
-      snapshot.forEach(storySnap => {
-        const story = storySnap.val();
-        storiesContainer.innerHTML += `
-          <div class="story">
-            <img src="${story.image}" alt="${story.username}">
-            <span>${story.username}</span>
-          </div>
-        `;
-      });
-    });
+                // Likes
+                listenForLikes(post.id, (count) => {
+                    document.getElementById(`likes-${post.id}`).textContent = `${count} Likes`;
+                });
 
-    // Load Posts
-    firebase.database().ref('posts').on('value', snapshot => {
-      feedContainer.innerHTML = '';
-      snapshot.forEach(postSnap => {
-        const post = postSnap.val();
-        feedContainer.innerHTML += `
-          <article class="post" data-id="${postSnap.key}">
-            <div class="post-header">
-              <img src="${post.userAvatar}" class="avatar">
-              <span class="username">${post.username}</span>
-            </div>
-            <img src="${post.image}" class="post-img">
-            <div class="post-actions">
-              <i class="fa-regular fa-heart like-btn" data-post="${postSnap.key}"></i>
-              <i class="fa-regular fa-comment comment-btn" data-post="${postSnap.key}"></i>
-              <i class="fa-regular fa-paper-plane"></i>
-            </div>
-            <div class="post-likes">
-              Liked by <b>${post.likedBy || 'No one yet'}</b> and <b>${post.likes || 0} others</b>
-            </div>
-            <div class="post-caption">
-              <b>${post.username}</b> ${post.caption || ''}
-            </div>
-          </article>
-        `;
-      });
+                // Comments
+                listenForComments(post.id, (comments) => {
+                    const commentsDiv = document.getElementById(`comments-${post.id}`);
+                    commentsDiv.innerHTML = '';
+                    Object.values(comments).forEach(c => {
+                        const commentEl = document.createElement('div');
+                        commentEl.textContent = `${c.username}: ${c.text}`;
+                        commentsDiv.appendChild(commentEl);
+                    });
+                });
+            });
 
-      // Attach actions after posts are rendered
-      initSocialActions();
-    });
-  </script>
+            // Like click events
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', () => toggleLike(btn.dataset.id));
+            });
 
+            // Comment input events
+            document.querySelectorAll('.comment-input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && input.value.trim()) {
+                        addComment(input.dataset.id, input.value.trim());
+                        input.value = '';
+                    }
+                });
+            });
+        }
+
+        loadPosts();
+    </script>
 </body>
 </html>
