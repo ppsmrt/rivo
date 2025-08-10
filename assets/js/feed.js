@@ -1,62 +1,50 @@
-import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc, deleteDoc, getDoc, updateDoc, increment } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { app } from "./firebaseConfig.js"; // your firebase config file
+import { auth } from './firebase-init.js';
+import { listenForLikes, toggleLike } from './likes.js';
+import { listenForComments } from './comments.js';
+import { getPosts } from './posts.js'; // separate if needed
 
-const db = getFirestore(app);
-const auth = getAuth(app);
+// Load posts into the DOM
+async function loadFeed() {
+    const feedContainer = document.querySelector('.feed');
+    feedContainer.innerHTML = '';
 
-function renderFeed() {
-    const feedRef = collection(db, "posts");
-    const q = query(feedRef, orderBy("timestamp", "desc"));
+    const posts = await getPosts(); // Fetch from Firebase
 
-    onSnapshot(q, (snapshot) => {
-        const feedContainer = document.getElementById("feed");
-        feedContainer.innerHTML = "";
+    posts.forEach(post => {
+        const postEl = document.createElement('article');
+        postEl.classList.add('post');
+        postEl.innerHTML = `
+            <div class="post-header">
+                <img src="${post.userAvatar}" class="avatar">
+                <span class="username">${post.username}</span>
+            </div>
+            <img src="${post.imageUrl}" class="post-img">
+            <div class="post-actions">
+                <i class="fa-regular fa-heart like-btn"></i>
+                <i class="fa-regular fa-comment"></i>
+                <i class="fa-regular fa-paper-plane"></i>
+            </div>
+            <div class="post-likes">Liked by <b>Someone</b> and <b>0 others</b></div>
+            <div class="post-caption"><b>${post.username}</b> ${post.caption}</div>
+        `;
 
-        snapshot.forEach((docSnap) => {
-            const post = docSnap.data();
-            const postId = docSnap.id;
+        const likeBtn = postEl.querySelector('.like-btn');
+        const likesDisplay = postEl.querySelector('.post-likes');
 
-            const postHTML = `
-                <div class="border rounded-lg p-2">
-                    <img src="${post.imageUrl}" class="w-full rounded-lg cursor-pointer" onclick="toggleLike('${postId}')">
-                    <p id="likes-${postId}" class="font-bold mt-2">${post.likesCount || 0} likes</p>
-                    <p>${post.caption || ""}</p>
-                </div>
-            `;
+        likeBtn.addEventListener('click', () => toggleLike(post.id));
 
-            feedContainer.innerHTML += postHTML;
-            listenLikes(postId);
+        listenForLikes(post.id, (count, likesData) => {
+            let firstUser = Object.values(likesData)[0]?.username || "Someone";
+            likesDisplay.innerHTML = `Liked by <b>${firstUser}</b> and <b>${count} others</b>`;
+            likeBtn.classList.toggle('liked', likesData[auth.currentUser?.uid]);
         });
+
+        listenForComments(post.id, (comments) => {
+            console.log(`Post ${post.id} has ${Object.keys(comments).length} comments`);
+        });
+
+        feedContainer.appendChild(postEl);
     });
 }
 
-async function toggleLike(postId) {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("Please login to like posts.");
-        return;
-    }
-
-    const likeRef = doc(db, "posts", postId, "likes", user.uid);
-    const likeDoc = await getDoc(likeRef);
-
-    if (likeDoc.exists()) {
-        await deleteDoc(likeRef);
-        await updateDoc(doc(db, "posts", postId), { likesCount: increment(-1) });
-    } else {
-        await setDoc(likeRef, { userId: user.uid, timestamp: new Date() });
-        await updateDoc(doc(db, "posts", postId), { likesCount: increment(1) });
-    }
-}
-
-function listenLikes(postId) {
-    const postRef = doc(db, "posts", postId);
-    onSnapshot(postRef, (snapshot) => {
-        const data = snapshot.data();
-        document.getElementById(`likes-${postId}`).innerText = `${data?.likesCount || 0} likes`;
-    });
-}
-
-window.toggleLike = toggleLike; // expose to HTML
-renderFeed();
+loadFeed();
