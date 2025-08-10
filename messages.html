@@ -3,80 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Messages</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <title>Messages - Rivo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #fff;
-      font-family: 'Inter', sans-serif;
-    }
-    .fade-in {
-      animation: fadeIn 0.4s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .chat-preview:hover {
-      background-color: #f9f9f9;
-    }
-    .violet-btn {
-      color: #7c3aed;
-    }
-  </style>
 </head>
-<body class="flex flex-col h-screen">
-
-  <!-- Header -->
-  <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-    <h1 class="text-lg font-semibold">Messages</h1>
-    <button class="violet-btn text-2xl"><i class="fa-solid fa-pen-to-square"></i></button>
-  </div>
-
-  <!-- Search -->
-  <div class="px-4 py-2 border-b border-gray-200">
-    <input type="text" placeholder="Search messages..." class="w-full p-2 rounded-full border focus:outline-none focus:border-violet-600"/>
-  </div>
-
-  <!-- Conversations -->
-  <div class="flex-1 overflow-y-auto">
-    <div class="chat-preview flex items-center gap-3 px-4 py-3 border-b fade-in cursor-pointer">
-      <img src="https://i.pravatar.cc/45" class="rounded-full w-12 h-12"/>
-      <div class="flex-1">
-        <p class="font-semibold">Alice</p>
-        <p class="text-gray-500 text-sm truncate">Hey! How are you?</p>
-      </div>
-      <span class="text-xs text-gray-400">2m</span>
+<body class="bg-gray-50 min-h-screen">
+  <main class="max-w-3xl mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Messages</h1>
+    <div id="chatList" class="space-y-2">
+      <!-- Chats will be injected here -->
     </div>
+  </main>
 
-    <div class="chat-preview flex items-center gap-3 px-4 py-3 border-b fade-in cursor-pointer">
-      <img src="https://i.pravatar.cc/46" class="rounded-full w-12 h-12"/>
-      <div class="flex-1">
-        <p class="font-semibold">Bob</p>
-        <p class="text-gray-500 text-sm truncate">Let's meet tomorrow.</p>
-      </div>
-      <span class="text-xs text-gray-400">10m</span>
-    </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    <div class="chat-preview flex items-center gap-3 px-4 py-3 border-b fade-in cursor-pointer">
-      <img src="https://i.pravatar.cc/47" class="rounded-full w-12 h-12"/>
-      <div class="flex-1">
-        <p class="font-semibold">Charlie</p>
-        <p class="text-gray-500 text-sm truncate">Got your message 👍</p>
-      </div>
-      <span class="text-xs text-gray-400">1h</span>
-    </div>
-  </div>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
 
-  <!-- Bottom Nav -->
-  <div class="px-4 py-2 border-t border-gray-200 flex justify-around text-2xl">
-    <a href="feed.html" class="violet-btn"><i class="fa-solid fa-house"></i></a>
-    <a href="explore.html"><i class="fa-solid fa-magnifying-glass"></i></a>
-    <a href="upload.html"><i class="fa-solid fa-circle-plus"></i></a>
-    <a href="notifications.html"><i class="fa-solid fa-bell"></i></a>
-    <a href="profile.html"><i class="fa-solid fa-user"></i></a>
-  </div>
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase();
 
+  const chatListEl = document.getElementById('chatList');
+
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const chatsRef = ref(db, 'chats');
+    onValue(chatsRef, snapshot => {
+      chatListEl.innerHTML = '';
+      if (!snapshot.exists()) {
+        chatListEl.innerHTML = `<div class="text-gray-500">No chats found</div>`;
+        return;
+      }
+      snapshot.forEach(chatSnap => {
+        const chat = chatSnap.val();
+        const chatId = chatSnap.key;
+
+        // Only show if user is a participant
+        if (!chat.participants || !Object.keys(chat.participants).includes(user.uid)) return;
+
+        const lastMsg = chat.lastMessage ? (chat.lastMessage.text || "[Image]") : "No messages yet";
+        const chatName = chat.isGroup ? chat.name : chat.otherUserName || "Chat";
+        const avatar = chat.avatar || 'https://i.pravatar.cc/40';
+
+        const div = document.createElement('div');
+        div.className = "flex items-center p-3 bg-white rounded shadow cursor-pointer hover:bg-gray-100";
+        div.innerHTML = `
+          <img src="${avatar}" class="w-10 h-10 rounded-full mr-3" />
+          <div class="flex-1">
+            <div class="font-semibold">${chatName}</div>
+            <div class="text-sm text-gray-500 truncate">${lastMsg}</div>
+          </div>
+        `;
+        div.addEventListener('click', () => {
+          window.location.href = `chat.html?chatId=${chatId}`;
+        });
+        chatListEl.appendChild(div);
+      });
+    });
+  });
+</script>
 </body>
 </html>
