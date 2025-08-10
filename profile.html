@@ -1,88 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rivo - Profile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <!-- Header -->
-  <header class="bg-white shadow">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-violet-700">Rivo</h1>
-      <nav class="flex gap-4">
-        <a href="index.html" class="hover:text-violet-600">Home</a>
-        <a href="explore.html" class="hover:text-violet-600">Explore</a>
-        <a href="profile.html" class="text-violet-600 font-semibold">Profile</a>
-      </nav>
-    </div>
-  </header>
 
-  <!-- Main -->
+  <!-- Main container -->
   <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
-    <div id="profileArea" class="animate-pulse text-gray-500">Loading profile...</div>
-
-    <!-- Auth actions -->
-    <div class="mt-4 flex gap-2">
-      <button id="signInBtn" class="bg-violet-600 text-white px-3 py-1 rounded">Sign in</button>
-      <button id="signOutBtn" class="hidden bg-gray-200 px-3 py-1 rounded">Sign out</button>
+    <div id="profileHeader" class="flex items-center gap-4 mb-6">
+      <!-- Profile header will be loaded dynamically -->
     </div>
+
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Posts</h2>
+      <div id="userPosts" class="space-y-4">
+        <!-- Posts will be injected here -->
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="mt-8 py-4 text-center text-gray-400 text-sm">
-    &copy; 2025 Rivo. All rights reserved.
-  </footer>
-
-  <!-- Scripts -->
+  <!-- Centralized Firebase + UI logic -->
   <script type="module">
-    import '/assets/js/firebase-init.js';
     import '/assets/js/realtime-app.js';
 
-    const sampleTargetUserId = prompt('Enter target user ID to view (for demo)') || 'target_user_id';
+    import { getAuth, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, onValue } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    const db = getDatabase();
     const auth = getAuth();
+    const db = getDatabase();
 
-    onValue(ref(db, `users/${sampleTargetUserId}`), snap => {
-      const root = document.getElementById('profileArea');
-      if (!snap.exists()) {
-        root.innerHTML = `<div>User not found</div>`;
+    const profileHeader = document.getElementById('profileHeader');
+    const userPosts = document.getElementById('userPosts');
+
+    // Load profile info
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        profileHeader.innerHTML = `<p class="text-gray-500">Please sign in to view profile.</p>`;
         return;
       }
-      const u = snap.val();
-      root.innerHTML = `
-        <div class="flex items-center gap-4">
-          <img src="${u.photoURL || 'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
-          <div>
-            <div class="text-xl font-semibold">${u.displayName || u.email || 'User'}</div>
-            <div class="text-sm text-gray-500">${u.bio || ''}</div>
-          </div>
-        </div>
-        <div class="mt-4">
-          <button id="followBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Follow</button>
-        </div>
-      `;
 
-      document.getElementById('followBtn').addEventListener('click', async () => {
-        const me = auth.currentUser;
-        if (!me) {
-          alert('Sign in to follow');
+      const userRef = ref(db, `users/${user.uid}`);
+      onValue(userRef, (snap) => {
+        const data = snap.val() || {};
+        profileHeader.innerHTML = `
+          <img src="${data.photoURL || 'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
+          <div>
+            <div class="text-xl font-bold">${data.displayName || user.email}</div>
+            <div class="text-sm text-gray-500">${data.bio || 'No bio available'}</div>
+          </div>
+        `;
+      });
+
+      // Load user's posts
+      const postsRef = ref(db, `posts/${user.uid}`);
+      onValue(postsRef, (snap) => {
+        userPosts.innerHTML = '';
+        if (!snap.exists()) {
+          userPosts.innerHTML = `<p class="text-gray-500">No posts yet.</p>`;
           return;
         }
-        await RivoRealtime.followUser(me.uid, sampleTargetUserId);
-        alert('Followed');
-      });
-    });
 
-    // Auth state handling
-    window.addEventListener('rivo:authChange', (e) => {
-      const u = e.detail;
-      document.getElementById('signOutBtn').classList.toggle('hidden', !u);
+        snap.forEach((childSnap) => {
+          const post = childSnap.val();
+          userPosts.innerHTML += `
+            <div class="p-4 bg-gray-100 rounded">
+              <div class="text-lg font-semibold">${post.title || 'Untitled'}</div>
+              <div class="text-sm text-gray-600">${post.content || ''}</div>
+            </div>
+          `;
+        });
+      });
     });
   </script>
 </body>
