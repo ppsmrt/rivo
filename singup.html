@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - Rivo</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="app-body">
+
+  <!-- Header -->
+  <header class="app-header">
+    <h1 class="title">Create Account</h1>
+  </header>
+
+  <!-- Sign Up Form -->
+  <main class="form-container">
+    <form class="auth-form">
+      <div class="input-group">
+        <i class="fa fa-user"></i>
+        <input type="text" placeholder="Full Name" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa fa-envelope"></i>
+        <input type="email" placeholder="Email" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa fa-lock"></i>
+        <input type="password" placeholder="Password" required>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        <i class="fa fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <!-- Social Login -->
+    <div class="social-login">
+      <button class="social-btn google"><i class="fab fa-google"></i></button>
+      <button class="social-btn facebook"><i class="fab fa-facebook-f"></i></button>
+    </div>
+
+    <p class="form-footer">Already have an account? <a href="signin.html">Sign In</a></p>
+  </main>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
