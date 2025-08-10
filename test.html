@@ -2,132 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rivo - Authentication</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auth UI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #6C4CFF 0%, #8E77FF 100%);
+      background-color: #ffffff;
     }
     .auth-card {
-      background: white;
-      border-radius: 1.5rem;
-      box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      width: 100%;
-      max-width: 420px;
-    }
-    .input-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #888;
+      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.06);
+      border-radius: 1rem;
     }
     .input-field {
-      padding-left: 2.8rem;
-      border-radius: 0.75rem;
-      border: 1px solid #e5e7eb;
-      height: 3rem;
+      background-color: #f5f6fa;
     }
     .btn-primary {
       background-color: #6C4CFF;
-      color: white;
-      border-radius: 0.75rem;
-      padding: 0.75rem;
-      font-weight: 600;
-      transition: background 0.3s ease;
     }
     .btn-primary:hover {
       background-color: #5a3de0;
     }
     .fade {
       transition: all 0.4s ease;
-      opacity: 0;
-      transform: translateY(10px);
-      pointer-events: none;
-    }
-    .fade.active {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
     }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen px-4">
+  <div class="auth-card w-full max-w-md p-8 bg-white fade">
+    <h1 id="form-title" class="text-2xl font-bold mb-2">Sign In</h1>
+    <p id="form-subtitle" class="text-gray-500 mb-6">Welcome back! Please sign in to your account.</p>
 
-  <div class="flex flex-col md:flex-row items-center justify-center gap-10">
-    <!-- Left: Auth Card -->
-    <div class="auth-card">
-      <h2 id="form-title" class="text-2xl font-bold mb-6 text-gray-800 text-center">Sign In</h2>
+    <form id="auth-form" class="space-y-4">
+      <div>
+        <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+      </div>
+      <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign In</button>
+    </form>
 
-      <!-- Sign In Form -->
-      <form id="signin-form" class="fade active space-y-4">
-        <div class="relative">
-          <span class="input-icon">📧</span>
-          <input type="email" placeholder="Email" class="input-field w-full" required>
-        </div>
-        <div class="relative">
-          <span class="input-icon">🔒</span>
-          <input type="password" placeholder="Password" class="input-field w-full" required>
-        </div>
-        <button type="submit" class="btn-primary w-full">Sign In</button>
-        <p class="text-sm text-center text-gray-500">
-          Don’t have an account? 
-          <a href="#" id="toggle-to-signup" class="text-[#6C4CFF] font-medium">Sign Up</a>
-        </p>
-      </form>
-
-      <!-- Sign Up Form -->
-      <form id="signup-form" class="fade space-y-4">
-        <div class="relative">
-          <span class="input-icon">👤</span>
-          <input type="text" placeholder="Full Name" class="input-field w-full" required>
-        </div>
-        <div class="relative">
-          <span class="input-icon">📧</span>
-          <input type="email" placeholder="Email" class="input-field w-full" required>
-        </div>
-        <div class="relative">
-          <span class="input-icon">🔒</span>
-          <input type="password" placeholder="Password" class="input-field w-full" required>
-        </div>
-        <button type="submit" class="btn-primary w-full">Sign Up</button>
-        <p class="text-sm text-center text-gray-500">
-          Already have an account? 
-          <a href="#" id="toggle-to-signin" class="text-[#6C4CFF] font-medium">Sign In</a>
-        </p>
-      </form>
+    <div class="flex items-center my-6">
+      <hr class="flex-1 border-gray-300" />
+      <span class="px-3 text-gray-400 text-sm">OR</span>
+      <hr class="flex-1 border-gray-300" />
     </div>
 
-    <!-- Right: Illustration -->
-    <div class="hidden md:block">
-      <img src="https://via.placeholder.com/400x400?text=Illustration" alt="Auth Illustration" class="max-w-md">
+    <div class="space-y-3">
+      <button class="w-full py-3 rounded-lg border flex items-center justify-center gap-2">
+        <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" class="w-5 h-5" /> Continue with Google
+      </button>
+      <button class="w-full py-3 rounded-lg border flex items-center justify-center gap-2">
+        <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" class="w-5 h-5" /> Continue with Facebook
+      </button>
     </div>
+
+    <p class="text-sm text-gray-500 mt-6 text-center">
+      <span id="toggle-text">Don't have an account?</span>
+      <button id="toggle-btn" class="text-purple-600 font-semibold">Sign Up</button>
+    </p>
   </div>
 
   <script>
-    const signinForm = document.getElementById('signin-form');
-    const signupForm = document.getElementById('signup-form');
-    const toggleToSignup = document.getElementById('toggle-to-signup');
-    const toggleToSignin = document.getElementById('toggle-to-signin');
+    const toggleBtn = document.getElementById('toggle-btn');
     const formTitle = document.getElementById('form-title');
+    const formSubtitle = document.getElementById('form-subtitle');
+    const toggleText = document.getElementById('toggle-text');
+    const authForm = document.getElementById('auth-form');
 
-    toggleToSignup.addEventListener('click', (e) => {
-      e.preventDefault();
-      signinForm.classList.remove('active');
-      signupForm.classList.add('active');
-      formTitle.textContent = 'Sign Up';
-    });
+    let isSignUp = false;
 
-    toggleToSignin.addEventListener('click', (e) => {
-      e.preventDefault();
-      signupForm.classList.remove('active');
-      signinForm.classList.add('active');
-      formTitle.textContent = 'Sign In';
+    toggleBtn.addEventListener('click', () => {
+      isSignUp = !isSignUp;
+      formTitle.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+      formSubtitle.textContent = isSignUp
+        ? 'Create your account to get started.'
+        : 'Welcome back! Please sign in to your account.';
+      toggleText.textContent = isSignUp
+        ? 'Already have an account?'
+        : "Don't have an account?";
+      toggleBtn.textContent = isSignUp ? 'Sign In' : 'Sign Up';
+
+      authForm.innerHTML = isSignUp
+        ? `
+          <div>
+            <input type="text" placeholder="Full Name" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          </div>
+          <div>
+            <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          </div>
+          <div>
+            <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          </div>
+          <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign Up</button>
+        `
+        : `
+          <div>
+            <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          </div>
+          <div>
+            <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          </div>
+          <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign In</button>
+        `;
     });
   </script>
-
 </body>
 </html>
