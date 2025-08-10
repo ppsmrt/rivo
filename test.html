@@ -1,143 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auth UI Premium</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth UI</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #ffffff;
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9CA3AF;
+    }
+    input {
+      padding-left: 2.5rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #6C4CFF;
+      box-shadow: 0 0 0 2px rgba(108, 76, 255, 0.3);
     }
     .auth-card {
-      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.06);
-      border-radius: 1rem;
-    }
-    .input-wrapper {
-      display: flex;
-      align-items: center;
-      border: 2px solid #6C4CFF;
-      border-radius: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      transition: all 0.3s ease;
-    }
-    .input-wrapper:focus-within {
-      box-shadow: 0 0 0 3px rgba(108, 76, 255, 0.3);
-    }
-    .input-wrapper i {
-      color: #6C4CFF;
-      margin-right: 0.5rem;
-    }
-    .input-wrapper input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-    }
-    .btn-premium {
-      background: linear-gradient(90deg, #6C4CFF, #8E6CFF);
-      box-shadow: 0 4px 15px rgba(108, 76, 255, 0.4);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-premium:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(108, 76, 255, 0.5);
+      transition: all 0.4s ease;
     }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen px-4">
-  <div class="auth-card w-full max-w-md p-8 bg-white">
-    <h1 id="form-title" class="text-2xl font-bold mb-2">Sign In</h1>
-    <p id="form-subtitle" class="text-gray-500 mb-6">Welcome back! Please sign in to your account.</p>
-
-    <form id="auth-form" class="space-y-4">
-      <div class="input-wrapper">
-        <i class="fa fa-envelope"></i>
-        <input type="email" placeholder="Email" />
+<body class="bg-white flex items-center justify-center min-h-screen">
+  <div id="authCard" class="auth-card bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm">
+    <h1 id="formTitle" class="text-2xl font-bold text-center mb-6">Create Account</h1>
+    <form id="signupForm" class="space-y-4">
+      <div class="relative">
+        <i class="fa fa-user input-icon"></i>
+        <input type="text" placeholder="Name" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
       </div>
-      <div class="input-wrapper">
-        <i class="fa fa-lock"></i>
-        <input type="password" placeholder="Password" />
+      <div class="relative">
+        <i class="fa fa-envelope input-icon"></i>
+        <input type="email" placeholder="Email" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
       </div>
-      <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
-        <i class="fa fa-sign-in-alt"></i> Sign In
+      <div class="relative">
+        <i class="fa fa-lock input-icon"></i>
+        <input type="password" placeholder="Password" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
+      </div>
+      <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition">
+        <span>Create Account</span> <i class="fa fa-arrow-right text-white"></i>
       </button>
+      <div class="flex justify-center gap-4 mt-4">
+        <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+          <i class="fab fa-google text-xl text-gray-600"></i>
+        </button>
+        <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+          <i class="fab fa-facebook-f text-xl text-gray-600"></i>
+        </button>
+      </div>
     </form>
 
-    <div class="flex items-center my-6">
-      <hr class="flex-1 border-gray-300" />
-      <span class="px-3 text-gray-400 text-sm">OR</span>
-      <hr class="flex-1 border-gray-300" />
-    </div>
-
-    <div class="space-y-3">
-      <button class="w-full py-3 rounded-lg border flex items-center justify-center gap-2">
-        <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" class="w-5 h-5" /> Continue with Google
-      </button>
-      <button class="w-full py-3 rounded-lg border flex items-center justify-center gap-2">
-        <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" class="w-5 h-5" /> Continue with Facebook
-      </button>
-    </div>
-
-    <p class="text-sm text-gray-500 mt-6 text-center">
-      <span id="toggle-text">Don't have an account?</span>
-      <button id="toggle-btn" class="text-purple-600 font-semibold">Sign Up</button>
+    <p class="text-center text-sm text-gray-500 mt-6">
+      Already have an account? 
+      <a href="#" id="toggleAuth" class="text-purple-600 font-medium">Sign In</a>
     </p>
   </div>
 
   <script>
-    const toggleBtn = document.getElementById('toggle-btn');
-    const formTitle = document.getElementById('form-title');
-    const formSubtitle = document.getElementById('form-subtitle');
-    const toggleText = document.getElementById('toggle-text');
-    const authForm = document.getElementById('auth-form');
+    const toggleAuth = document.getElementById("toggleAuth");
+    const formTitle = document.getElementById("formTitle");
+    const signupForm = document.getElementById("signupForm");
 
-    let isSignUp = false;
-
-    toggleBtn.addEventListener('click', () => {
-      isSignUp = !isSignUp;
-      formTitle.textContent = isSignUp ? 'Sign Up' : 'Sign In';
-      formSubtitle.textContent = isSignUp
-        ? 'Create your account to get started.'
-        : 'Welcome back! Please sign in to your account.';
-      toggleText.textContent = isSignUp
-        ? 'Already have an account?'
-        : "Don't have an account?";
-      toggleBtn.textContent = isSignUp ? 'Sign In' : 'Sign Up';
-
-      authForm.innerHTML = isSignUp
-        ? `
-          <div class="input-wrapper">
-            <i class="fa fa-user"></i>
-            <input type="text" placeholder="Full Name" />
+    toggleAuth.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (formTitle.textContent === "Create Account") {
+        formTitle.textContent = "Sign In";
+        signupForm.innerHTML = `
+          <div class="relative">
+            <i class="fa fa-envelope input-icon"></i>
+            <input type="email" placeholder="Email" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
           </div>
-          <div class="input-wrapper">
-            <i class="fa fa-envelope"></i>
-            <input type="email" placeholder="Email" />
+          <div class="relative">
+            <i class="fa fa-lock input-icon"></i>
+            <input type="password" placeholder="Password" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
           </div>
-          <div class="input-wrapper">
-            <i class="fa fa-lock"></i>
-            <input type="password" placeholder="Password" />
-          </div>
-          <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
-            <i class="fa fa-user-plus"></i> Sign Up
+          <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition">
+            <span>Sign In</span> <i class="fa fa-arrow-right text-white"></i>
           </button>
-        `
-        : `
-          <div class="input-wrapper">
-            <i class="fa fa-envelope"></i>
-            <input type="email" placeholder="Email" />
+          <div class="flex justify-center gap-4 mt-4">
+            <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+              <i class="fab fa-google text-xl text-gray-600"></i>
+            </button>
+            <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+              <i class="fab fa-facebook-f text-xl text-gray-600"></i>
+            </button>
           </div>
-          <div class="input-wrapper">
-            <i class="fa fa-lock"></i>
-            <input type="password" placeholder="Password" />
-          </div>
-          <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
-            <i class="fa fa-sign-in-alt"></i> Sign In
-          </button>
         `;
+        toggleAuth.textContent = "Create Account";
+      } else {
+        location.reload();
+      }
     });
   </script>
 </body>
