@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feed - Rivo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #fafafa; }
+    .post-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+    }
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 9999px;
+      margin-right: 0.75rem;
+    }
+    .post-media img, .post-media video {
+      width: 100%;
+      display: block;
+    }
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+    }
+    .post-actions i {
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .post-caption {
+      padding: 0 1rem 1rem;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body class="font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+    <div class="text-xl font-bold text-pink-500">Rivo</div>
+    <div class="flex gap-4 text-gray-600">
+      <a href="index.html"><i class="fa-solid fa-house"></i></a>
+      <a href="explore.html"><i class="fa-solid fa-compass"></i></a>
+      <a href="chat.html"><i class="fa-solid fa-message"></i></a>
+      <a href="profile.html"><i class="fa-solid fa-user"></i></a>
+    </div>
+  </nav>
+
+  <!-- Feed -->
+  <main class="max-w-md mx-auto p-4">
+
+    <!-- Post 1 -->
+    <div class="post-card">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/40?img=1" alt="User">
+        <div class="font-semibold">alex_insta</div>
+      </div>
+      <div class="post-media">
+        <img src="https://source.unsplash.com/random/800x600?fashion" alt="Post">
+      </div>
+      <div class="post-actions">
+        <div class="flex gap-4">
+          <i class="fa-regular fa-heart"></i>
+          <i class="fa-regular fa-comment"></i>
+          <i class="fa-regular fa-paper-plane"></i>
+        </div>
+        <i class="fa-regular fa-bookmark"></i>
+      </div>
+      <div class="post-caption">
+        <span class="font-semibold">alex_insta</span> New outfit drop 🔥✨ #style
+      </div>
+    </div>
+
+    <!-- Post 2 (Video) -->
+    <div class="post-card">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/40?img=2" alt="User">
+        <div class="font-semibold">travel_guru</div>
+      </div>
+      <div class="post-media">
+        <video controls>
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="post-actions">
+        <div class="flex gap-4">
+          <i class="fa-regular fa-heart"></i>
+          <i class="fa-regular fa-comment"></i>
+          <i class="fa-regular fa-paper-plane"></i>
+        </div>
+        <i class="fa-regular fa-bookmark"></i>
+      </div>
+      <div class="post-caption">
+        <span class="font-semibold">travel_guru</span> Sunset vibes 🌅 #wanderlust
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-3 text-center text-gray-500 text-sm">
+    &copy; 2025 Rivo. All rights reserved.
+  </footer>
+
+</body>
+</html>
