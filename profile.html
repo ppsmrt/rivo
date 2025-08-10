@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - Rivo</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="script.js" defer></script>
+  <style>
+    body {
+      background: #fff;
+      color: #222;
+      font-family: "Inter", sans-serif;
+      margin: 0;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .profile-header img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 16px;
+      border: 3px solid #8b5cf6;
+    }
+    .profile-info {
+      flex: 1;
+    }
+    .profile-username {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .profile-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .profile-actions button {
+      background: #8b5cf6;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .bio {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 8px;
+    }
+    .post-grid img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="profile-header">
+    <img src="https://via.placeholder.com/150" alt="Profile Picture">
+    <div class="profile-info">
+      <div class="profile-username">john_doe</div>
+      <div class="stats">
+        <div><div class="stat-value">120</div><div>Posts</div></div>
+        <div><div class="stat-value">2.5k</div><div>Followers</div></div>
+        <div><div class="stat-value">320</div><div>Following</div></div>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button>Edit Profile</button>
+      <i class="fas fa-cog" style="font-size: 1.2rem; color: #8b5cf6;"></i>
+    </div>
+  </header>
+
+  <section class="bio">
+    ✨ Love creating premium UI & exploring the world 🌍  
+    📍 India | 💻 Web Developer
+  </section>
+
+  <section class="post-grid">
+    <img src="https://source.unsplash.com/random/300x300?1" alt="">
+    <img src="https://source.unsplash.com/random/300x300?2" alt="">
+    <img src="https://source.unsplash.com/random/300x300?3" alt="">
+    <img src="https://source.unsplash.com/random/300x300?4" alt="">
+    <img src="https://source.unsplash.com/random/300x300?5" alt="">
+    <img src="https://source.unsplash.com/random/300x300?6" alt="">
+    <img src="https://source.unsplash.com/random/300x300?7" alt="">
+    <img src="https://source.unsplash.com/random/300x300?8" alt="">
+    <img src="https://source.unsplash.com/random/300x300?9" alt="">
+  </section>
+
+</body>
+</html>
