@@ -3,75 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Messages - Rivo</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Messages</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: #fff;
+      background-color: #fff;
       font-family: 'Inter', sans-serif;
     }
-    .chat-hover {
-      transition: background-color 0.3s ease;
-    }
-    .chat-hover:hover {
-      background-color: #f5f3ff;
-    }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .violet-btn { color: #7c3aed; }
+    .violet-outline { border: 1px solid #7c3aed; }
   </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col h-screen">
 
   <!-- Header -->
-  <header class="flex items-center justify-between p-4 border-b border-gray-200">
-    <i class="fas fa-arrow-left text-xl text-gray-700"></i>
-    <h1 class="font-bold text-lg">Messages</h1>
-    <i class="fas fa-edit text-xl text-violet-500"></i>
-  </header>
-
-  <!-- Search -->
-  <div class="p-4">
-    <div class="flex items-center bg-gray-100 rounded-full px-3 py-2">
-      <i class="fas fa-search text-gray-500"></i>
-      <input type="text" placeholder="Search" class="bg-transparent outline-none flex-1 ml-2 text-sm">
-    </div>
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 fade-in">
+    <h1 class="text-lg font-bold">Messages</h1>
+    <button class="violet-btn text-2xl"><i class="fa-regular fa-pen-to-square"></i></button>
   </div>
 
-  <!-- Chats List -->
-  <section class="flex-1 overflow-y-auto">
-    <!-- Single Chat -->
-    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
-      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
-      <div class="ml-3 flex-1">
-        <div class="flex justify-between">
-          <h2 class="font-semibold">John Doe</h2>
-          <span class="text-xs text-gray-500">2m</span>
-        </div>
-        <p class="text-sm text-gray-500 truncate">Hey, how are you doing?</p>
+  <!-- Search Bar -->
+  <div class="px-4 py-2">
+    <input type="text" placeholder="Search" class="w-full p-2 rounded-full violet-outline focus:outline-none focus:border-violet-600"/>
+  </div>
+
+  <!-- Conversation List -->
+  <div class="flex-1 overflow-y-auto fade-in">
+    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+      <img src="https://i.pravatar.cc/50?u=1" class="w-12 h-12 rounded-full"/>
+      <div class="flex-1">
+        <p class="font-semibold">john_doe</p>
+        <p class="text-gray-500 text-sm truncate">Hey! How’s it going?</p>
       </div>
+      <span class="text-xs text-gray-400">2m</span>
     </a>
 
-    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
-      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
-      <div class="ml-3 flex-1">
-        <div class="flex justify-between">
-          <h2 class="font-semibold">Jane Smith</h2>
-          <span class="text-xs text-gray-500">15m</span>
-        </div>
-        <p class="text-sm text-gray-500 truncate">Let’s meet tomorrow!</p>
+    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+      <img src="https://i.pravatar.cc/50?u=2" class="w-12 h-12 rounded-full"/>
+      <div class="flex-1">
+        <p class="font-semibold">emma_rose</p>
+        <p class="text-gray-500 text-sm truncate">Let’s meet tomorrow!</p>
       </div>
+      <span class="text-xs text-gray-400">5m</span>
     </a>
 
-    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
-      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
-      <div class="ml-3 flex-1">
-        <div class="flex justify-between">
-          <h2 class="font-semibold">Michael Lee</h2>
-          <span class="text-xs text-gray-500">1h</span>
-        </div>
-        <p class="text-sm text-gray-500 truncate">Thanks for your help!</p>
+    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+      <img src="https://i.pravatar.cc/50?u=3" class="w-12 h-12 rounded-full"/>
+      <div class="flex-1">
+        <p class="font-semibold">travel_buddy</p>
+        <p class="text-gray-500 text-sm truncate">The trip was amazing 😍</p>
       </div>
+      <span class="text-xs text-gray-400">1h</span>
     </a>
-  </section>
+  </div>
+
+  <!-- Floating New Message Button -->
+  <button class="fixed bottom-5 right-5 bg-violet-600 text-white p-4 rounded-full shadow-lg hover:bg-violet-700 transition">
+    <i class="fa-solid fa-plus"></i>
+  </button>
 
 </body>
 </html>
