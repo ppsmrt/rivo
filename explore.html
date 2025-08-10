@@ -1,155 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Explore — Rivo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body { background:#fff; }
-    .grid { column-count: 3; column-gap:8px; padding: 12px; }
-    .grid-item { break-inside: avoid; margin-bottom:8px; border-radius:12px; overflow:hidden; cursor:pointer; }
-    .grid-item img, .grid-item video { width:100%; display:block; object-fit: cover; border-radius:12px; }
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:60; align-items:center; justify-content:center; }
-    .modal.show { display:flex; }
-    .post-card { background:white; border-radius:10px; max-width:900px; width:95%; display:flex; overflow:hidden; }
-    .post-media{ flex:1; background:#000; display:flex; align-items:center; justify-content:center; }
-    .post-info{ width:360px; padding:12px; display:flex; flex-direction:column; }
-    .comments { overflow:auto; max-height:50vh; margin-top:8px; }
-    @media(max-width:768px) { .grid { column-count:2 } .post-info { display:none } .post-card { flex-direction:column } }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Explore - Rivo</title>
+    <link rel="stylesheet" href="/assets/css/theme.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100">
 
-  <!-- header (reuse your app header) -->
-  <header class="flex items-center justify-between px-4 py-3 border-b">
-    <h1 class="text-xl font-bold text-violet-600">Rivo — Explore</h1>
-    <div id="authControls">
-      <button id="signInBtn" class="px-3 py-1 rounded bg-violet-600 text-white"><i class="fa-brands fa-google"></i></button>
-      <div id="userBox" class="hidden items-center gap-2">
-        <img id="userAvatar" class="w-8 h-8 rounded-full" src="">
-        <span id="userName"></span>
-        <button id="signOutBtn">Sign out</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- search -->
-  <div class="px-3 py-3 border-b">
-    <input id="search" placeholder="Search #hashtags @users" class="w-full border-2 border-violet-200 rounded-md px-3 py-2"/>
-  </div>
-
-  <!-- grid -->
-  <main id="grid" class="grid"></main>
-
-  <!-- modal (post view) -->
-  <div id="postModal" class="modal">
-    <div class="post-card">
-      <div class="post-media" id="modalMedia"></div>
-      <div class="post-info">
-        <div class="flex items-center gap-3">
-          <img id="modalAvatar" class="w-10 h-10 rounded-full" src="">
-          <div>
-            <div id="modalUser" class="font-semibold"></div>
-            <div id="modalTime" class="text-xs text-gray-400"></div>
-          </div>
-          <button class="ml-auto close-modal text-gray-500">&times;</button>
+    <!-- Navbar -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600">Rivo</h1>
+            <nav class="space-x-4">
+                <a href="index.html" class="text-gray-600 hover:text-blue-600">Home</a>
+                <a href="explore.html" class="text-blue-600 font-semibold">Explore</a>
+                <a href="profile.html" class="text-gray-600 hover:text-blue-600">Profile</a>
+            </nav>
         </div>
+    </header>
 
-        <div id="modalCaption" class="mt-3 text-sm text-gray-700"></div>
-
-        <div class="mt-3 flex items-center gap-3">
-          <button id="modalLikeBtn" class="text-2xl text-gray-600"><i class="fa-regular fa-heart"></i></button>
-          <div id="modalLikes" class="text-sm text-gray-700">0 likes</div>
+    <!-- Explore Feed -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <h2 class="text-2xl font-bold mb-4">Explore Posts</h2>
+        <div id="exploreFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Posts will be dynamically loaded here -->
         </div>
+    </main>
 
-        <div class="comments mt-3" id="modalComments"></div>
+    <!-- Firebase & Scripts -->
+    <script type="module" src="/assets/js/firebase-init.js"></script>
+    <script src="/assets/js/social-actions.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadExplorePosts(); // Function from social-actions.js
+        });
+    </script>
 
-        <form id="commentForm" class="mt-3 flex gap-2">
-          <input id="commentInput" class="flex-1 border rounded-full px-3 py-2" placeholder="Add a comment..." />
-          <button class="bg-violet-600 text-white px-4 py-2 rounded-full">Post</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- modules -->
-  <script type="module">
-    import { signInWithGoogle, signOutUser, onAuthChanged } from "/assets/js/auth.js";
-    import { initExplore } from "/assets/js/posts.js";
-    import { auth } from "/assets/js/firebase-init.js"; // ensure auth exists for onAuthChanged usage
-
-    // wire auth UI
-    const signInBtn = document.getElementById('signInBtn');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const userBox = document.getElementById('userBox');
-    const userAvatar = document.getElementById('userAvatar');
-    const userName = document.getElementById('userName');
-
-    signInBtn.addEventListener('click', async () => {
-      signInBtn.disabled = true;
-      try { await signInWithGoogle(); }
-      catch (e) { console.error(e); alert('Sign-in failed'); }
-      finally { signInBtn.disabled = false; }
-    });
-
-    signOutBtn?.addEventListener('click', async () => { await signOutUser(); });
-
-    onAuthChanged((user) => {
-      if (user) {
-        signInBtn.style.display = 'none';
-        userBox.style.display = 'flex';
-        userAvatar.src = user.photoURL || `https://i.pravatar.cc/80?u=${user.uid}`;
-        userName.textContent = user.displayName || user.email || 'You';
-      } else {
-        signInBtn.style.display = 'inline-block';
-        userBox.style.display = 'none';
-      }
-    });
-
-    // find DOM nodes & init explore
-    const gridEl = document.getElementById('grid');
-    const modalEls = {
-      modal: document.getElementById('postModal'),
-      mediaContainer: document.getElementById('modalMedia'),
-      avatarEl: document.getElementById('modalAvatar'),
-      userEl: document.getElementById('modalUser'),
-      captionEl: document.getElementById('modalCaption'),
-      likesEl: document.getElementById('modalLikes'),
-      commentsListEl: document.getElementById('modalComments'),
-      commentForm: document.getElementById('commentForm'),
-      commentInput: document.getElementById('commentInput')
-    };
-
-    // provider to get current auth user
-    import { auth as _auth } from "/assets/js/firebase-init.js";
-    function authUserProvider(){
-      return _auth.currentUser;
-    }
-
-    // init explore grid & modal bindings
-    initExplore({ gridEl, modalEls, authUserProvider });
-
-    // modal close wiring
-    document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => {
-      modalEls.modal.classList.remove('show');
-    }));
-    document.getElementById('postModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('postModal')) modalEls.modal.classList.remove('show');
-    });
-
-    // Search filter (client-side)
-    const searchInp = document.getElementById('search');
-    searchInp.addEventListener('input', () => {
-      const q = searchInp.value.trim().toLowerCase();
-      document.querySelectorAll('.grid-item').forEach(item => {
-        const caption = (item.dataset.caption || "").toLowerCase();
-        const user = (item.dataset.user || "").toLowerCase();
-        if (!q) item.style.display = 'block';
-        else item.style.display = (caption.includes(q) || user.includes(q)) ? 'block' : 'none';
-      });
-    });
-  </script>
 </body>
 </html>
