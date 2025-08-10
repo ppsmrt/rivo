@@ -1,128 +1,62 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Auth + Feed</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rivo - Authentication</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <style>
-    .modal-bg { background-color: rgba(0,0,0,0.55); }
-    .comment-box::-webkit-scrollbar { width: 6px; }
-    .comment-box::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#6C4CFF",
+          },
+        },
+      },
+    };
+  </script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col text-gray-900">
+<body class="bg-primary flex items-center justify-center min-h-screen">
 
-  <!-- Header -->
-  <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
-    <h1 class="text-xl font-bold">Rivo</h1>
-    <div class="flex items-center gap-3">
-      <button id="refreshFeed" class="text-gray-700 hover:text-rose-600" title="Refresh feed">
-        <i class="fa-solid fa-arrows-rotate text-xl"></i>
-      </button>
-
-      <!-- Auth controls -->
-      <div id="authControls" class="flex items-center gap-3">
-        <button id="openAuthBtn" class="px-3 py-1 rounded bg-rose-500 text-white">Log in / Sign up</button>
-        <img id="meAvatarSmall" class="w-9 h-9 rounded-full object-cover hidden cursor-pointer" alt="me" />
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md transition-all duration-500" id="authBox">
+    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6" id="formTitle">Create your Account</h2>
+    
+    <form id="authForm" class="space-y-4">
+      <div class="relative">
+        <input type="text" id="nameField" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" required>
       </div>
+      <div class="relative">
+        <input type="email" id="emailField" placeholder="Email" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <div class="relative">
+        <input type="password" id="passwordField" placeholder="Password" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary" required>
+      </div>
+      <button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition">Register</button>
+    </form>
+
+    <p class="text-center text-gray-600 mt-4" id="toggleText">
+      Already have an account? 
+      <a href="#" class="text-primary font-semibold" id="toggleLink">Sign in</a>
+    </p>
+
+    <div class="flex items-center my-4">
+      <hr class="flex-grow border-gray-300" />
+      <span class="px-3 text-gray-500 text-sm">OR</span>
+      <hr class="flex-grow border-gray-300" />
     </div>
-  </header>
 
-  <main class="max-w-3xl mx-auto p-4 space-y-6 flex-grow w-full">
-
-    <!-- Post box (requires login) -->
-    <section id="postBox" class="bg-white rounded-lg shadow p-4 hidden">
-      <textarea id="statusInput" rows="3" placeholder="What's on your mind?" class="w-full p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"></textarea>
-      <div class="flex justify-between items-center mt-3">
-        <div class="text-sm text-gray-500">Signed in as: <span id="signedInAs" class="font-medium">—</span></div>
-        <div class="flex gap-2">
-          <button id="postStatusBtn" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded shadow">Post</button>
-          <button id="logoutBtn" class="bg-gray-200 px-3 py-2 rounded hidden">Logout</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Feed -->
-    <section id="feed" class="space-y-6">
-      <div class="text-center text-sm text-gray-500 py-8">Loading feed…</div>
-    </section>
-  </main>
-
-  <!-- Profile Modal -->
-  <div id="profileModal" class="fixed inset-0 hidden items-center justify-center z-50">
-    <div class="modal-bg absolute inset-0"></div>
-    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full relative z-10 p-6">
-      <button id="closeProfile" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-      <div class="flex items-center gap-4 mb-4">
-        <img id="profileAvatar" class="w-16 h-16 rounded-full object-cover" src="" alt="">
-        <div>
-          <h2 id="profileName" class="text-lg font-bold"></h2>
-          <p id="profileUsername" class="text-gray-500 text-sm"></p>
-        </div>
-      </div>
-      <p id="profileBio" class="text-gray-700 mb-4"></p>
-      <div class="flex gap-4 mb-4">
-        <p><span id="profileFollowers" class="font-bold">0</span> Followers</p>
-        <p><span id="profileFollowing" class="font-bold">0</span> Following</p>
-      </div>
-      <button id="followBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"></button>
-      <hr class="my-4">
-      <h3 class="font-semibold mb-2">Posts</h3>
-      <div id="profilePosts" class="space-y-4 max-h-60 overflow-y-auto"></div>
+    <div class="flex gap-3">
+      <button id="googleLogin" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">Google</button>
+      <button class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Facebook</button>
     </div>
   </div>
 
-  <!-- Auth Modal -->
-  <div id="authModal" class="fixed inset-0 hidden items-center justify-center z-50">
-    <div class="modal-bg absolute inset-0"></div>
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative z-10">
-      <button id="closeAuth" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-
-      <div id="authTabs" class="space-y-4">
-        <!-- Sign Up -->
-        <div id="signupSection">
-          <h2 class="text-xl font-bold">Create an account</h2>
-          <input id="signupName" class="w-full border p-2 rounded mt-3" placeholder="Full name" />
-          <input id="signupEmail" type="email" class="w-full border p-2 rounded mt-2" placeholder="Email" />
-          <input id="signupPassword" type="password" class="w-full border p-2 rounded mt-2" placeholder="Password (6+ chars)" />
-          <div class="flex gap-2 mt-3">
-            <button id="signupBtn" class="flex-1 bg-green-600 text-white p-2 rounded">Sign up</button>
-            <button id="toLogin" class="flex-1 bg-gray-100 p-2 rounded">Have an account?</button>
-          </div>
-        </div>
-
-        <!-- Login -->
-        <div id="loginSection" class="hidden">
-          <h2 class="text-xl font-bold">Log in</h2>
-          <input id="loginEmail" type="email" class="w-full border p-2 rounded mt-3" placeholder="Email" />
-          <input id="loginPassword" type="password" class="w-full border p-2 rounded mt-2" placeholder="Password" />
-          <div class="flex gap-2 mt-3">
-            <button id="loginBtn" class="flex-1 bg-blue-600 text-white p-2 rounded">Log in</button>
-            <button id="toSignup" class="flex-1 bg-gray-100 p-2 rounded">Sign up</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Firebase + App logic -->
+  <!-- Firebase SDKs -->
   <script type="module">
-    // ---------- Firebase SDK imports (modular) ----------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import {
-      getFirestore, collection, query, orderBy, getDocs, doc, getDoc,
-      addDoc, serverTimestamp, updateDoc, increment, arrayUnion, arrayRemove, setDoc, where, limit
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ---------- Your Firebase config (from you) ----------
     const firebaseConfig = {
       apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
       authDomain: "rivo-bea46.firebaseapp.com",
@@ -133,323 +67,53 @@
       measurementId: "G-RY85VPHXVP"
     };
 
-    // ---------- Init ----------
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-    // ---------- Elements ----------
-    const feedEl = document.getElementById('feed');
-    const postBox = document.getElementById('postBox');
-    const signedInAs = document.getElementById('signedInAs');
-    const meAvatarSmall = document.getElementById('meAvatarSmall');
-    const openAuthBtn = document.getElementById('openAuthBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    let isSignUp = true;
+    const toggleLink = document.getElementById("toggleLink");
+    const formTitle = document.getElementById("formTitle");
+    const toggleText = document.getElementById("toggleText");
+    const nameField = document.getElementById("nameField");
+    const authForm = document.getElementById("authForm");
 
-    const authModal = document.getElementById('authModal');
-    const openAuth = document.getElementById('openAuthBtn');
-    const closeAuth = document.getElementById('closeAuth');
-
-    const signupSection = document.getElementById('signupSection');
-    const loginSection = document.getElementById('loginSection');
-    const signupBtn = document.getElementById('signupBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const toLogin = document.getElementById('toLogin');
-    const toSignup = document.getElementById('toSignup');
-
-    const profileModal = document.getElementById('profileModal');
-    const closeProfile = document.getElementById('closeProfile');
-
-    // form inputs
-    const signupName = document.getElementById('signupName');
-    const signupEmail = document.getElementById('signupEmail');
-    const signupPassword = document.getElementById('signupPassword');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPassword = document.getElementById('loginPassword');
-
-    // profile modal elements
-    const profileAvatar = document.getElementById('profileAvatar');
-    const profileName = document.getElementById('profileName');
-    const profileUsername = document.getElementById('profileUsername');
-    const profileBio = document.getElementById('profileBio');
-    const profileFollowers = document.getElementById('profileFollowers');
-    const profileFollowing = document.getElementById('profileFollowing');
-    const followBtn = document.getElementById('followBtn');
-    const profilePosts = document.getElementById('profilePosts');
-
-    // controls
-    const refreshFeedBtn = document.getElementById('refreshFeed');
-    const statusInput = document.getElementById('statusInput');
-    const postStatusBtn = document.getElementById('postStatusBtn');
-
-    // state
-    let currentUser = null;       // firebase Auth user
-    let currentUserDoc = null;    // firestore user doc (object with id, username, etc.)
-    let postsCache = [];
-
-    // ---------- Helpers ----------
-    function el(tag, opts = {}) {
-      const e = document.createElement(tag);
-      if (opts.classes) e.className = opts.classes;
-      if (opts.text) e.textContent = opts.text;
-      if (opts.html) e.innerHTML = opts.html;
-      if (opts.attrs) for (const k in opts.attrs) e.setAttribute(k, opts.attrs[k]);
-      return e;
-    }
-
-    // Open/close auth modal
-    openAuth.addEventListener('click', () => authModal.classList.remove('hidden'));
-    closeAuth.addEventListener('click', () => authModal.classList.add('hidden'));
-
-    toLogin.addEventListener('click', () => {
-      signupSection.classList.add('hidden');
-      loginSection.classList.remove('hidden');
-    });
-    toSignup.addEventListener('click', () => {
-      loginSection.classList.add('hidden');
-      signupSection.classList.remove('hidden');
+    toggleLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      isSignUp = !isSignUp;
+      formTitle.textContent = isSignUp ? "Create your Account" : "Sign in to your Account";
+      toggleText.innerHTML = isSignUp
+        ? `Already have an account? <a href="#" class="text-primary font-semibold" id="toggleLink">Sign in</a>`
+        : `Don't have an account? <a href="#" class="text-primary font-semibold" id="toggleLink">Sign up</a>`;
+      nameField.style.display = isSignUp ? "block" : "none";
     });
 
-    // ---------- Auth flows ----------
-    signupBtn.addEventListener('click', async () => {
-      const name = signupName.value.trim();
-      const email = signupEmail.value.trim();
-      const pass = signupPassword.value.trim();
-      if (!name || !email || pass.length < 6) return alert('Please provide name, valid email and password (6+ chars).');
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("emailField").value;
+      const password = document.getElementById("passwordField").value;
 
       try {
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        await updateProfile(cred.user, { displayName: name });
-
-        // create user doc in Firestore
-        const userRef = doc(db, "users", cred.user.uid);
-        await setDoc(userRef, {
-          name,
-          username: (name.toLowerCase().replace(/\s+/g, '_') + '_' + cred.user.uid.slice(0,6)),
-          avatar: `https://i.pravatar.cc/150?u=${cred.user.uid}`,
-          bio: '',
-          followers: 0,
-          following: 0,
-          followingList: []
-        });
-
-        alert('Sign up successful — logged in!');
-        authModal.classList.add('hidden');
-      } catch (err) {
-        console.error(err);
-        alert(err.message || 'Sign up failed');
-      }
-    });
-
-    loginBtn.addEventListener('click', async () => {
-      const email = loginEmail.value.trim();
-      const pass = loginPassword.value.trim();
-      if (!email || !pass) return alert('Enter email & password');
-
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        authModal.classList.add('hidden');
-      } catch (err) {
-        console.error(err);
-        alert(err.message || 'Login failed');
-      }
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-    });
-
-    // ---------- Ensure user doc exists (for other auth methods) ----------
-    async function ensureUserDoc(uid, displayName, email) {
-      const uRef = doc(db, "users", uid);
-      const uSnap = await getDoc(uRef);
-      if (!uSnap.exists()) {
-        await setDoc(uRef, {
-          name: displayName || 'User',
-          username: (displayName ? displayName.toLowerCase().replace(/\s+/g,'_') : 'user') + '_' + uid.slice(0,6),
-          avatar: `https://i.pravatar.cc/150?u=${uid}`,
-          bio: '',
-          followers: 0,
-          following: 0,
-          followingList: []
-        });
-      }
-    }
-
-    // ---------- Auth state listener ----------
-    onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
-      if (user) {
-        // ensure user doc
-        await ensureUserDoc(user.uid, user.displayName || null, user.email || null);
-
-        // load user doc
-        const uSnap = await getDoc(doc(db, "users", user.uid));
-        currentUserDoc = uSnap.exists() ? { id: uSnap.id, ...uSnap.data() } : null;
-
-        // update UI
-        signedInAs.textContent = currentUserDoc?.username || (user.displayName || 'You');
-        meAvatarSmall.src = currentUserDoc?.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
-        meAvatarSmall.classList.remove('hidden');
-        openAuthBtn.classList.add('hidden');
-        postBox.classList.remove('hidden');
-        logoutBtn.classList.remove('hidden');
-
-        // make avatar clickable to profile
-        meAvatarSmall.onclick = () => openProfileByUid(user.uid);
-
-        // refresh feed
-        await loadPosts();
-      } else {
-        // signed out
-        currentUserDoc = null;
-        currentUser = null;
-        signedInAs.textContent = '—';
-        meAvatarSmall.classList.add('hidden');
-        openAuthBtn.classList.remove('hidden');
-        postBox.classList.add('hidden');
-        logoutBtn.classList.add('hidden');
-
-        // still load public feed
-        await loadPosts();
-      }
-    });
-
-    // ---------- Load posts (with user data) ----------
-    async function loadPosts() {
-      feedEl.innerHTML = `<div class="text-center text-sm text-gray-500 py-6">Loading feed...</div>`;
-
-      const q = query(collection(db, "posts"), orderBy("time", "desc"));
-      const snap = await getDocs(q);
-
-      postsCache = [];
-      const uidCache = {};
-
-      for (const s of snap.docs) {
-        const data = s.data();
-        const postId = s.id;
-        const uid = data.userId;
-
-        if (!uidCache[uid]) {
-          const uSnap = await getDoc(doc(db, "users", uid));
-          uidCache[uid] = uSnap.exists() ? { id: uSnap.id, ...uSnap.data() } : { id: uid, name: 'Unknown', username: 'unknown', avatar: `https://i.pravatar.cc/150?u=${uid}` };
+        if (isSignUp) {
+          await createUserWithEmailAndPassword(auth, email, password);
+          alert("Account created successfully!");
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("Signed in successfully!");
         }
-
-        postsCache.push({
-          id: postId,
-          user: uidCache[uid],
-          content: data.content,
-          likes: data.likes || 0,
-          shares: data.shares || 0,
-          time: data.time ? (data.time.toDate ? data.time.toDate().toLocaleString() : data.time) : '—'
-        });
+      } catch (err) {
+        alert(err.message);
       }
+    });
 
-      renderPosts();
-    }
-
-    // ---------- Render posts ----------
-    function renderPosts() {
-      feedEl.innerHTML = '';
-      if (!postsCache.length) {
-        feedEl.innerHTML = `<div class="text-center text-sm text-gray-500 py-8">No posts yet. Be the first!</div>`;
-        return;
+    document.getElementById("googleLogin").addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        alert("Signed in with Google!");
+      } catch (err) {
+        alert(err.message);
       }
-
-      postsCache.forEach(post => {
-        const postEl = el('article', { classes: 'bg-white rounded-lg shadow p-4' });
-
-        // Header
-        const header = el('div', { classes: 'flex items-center gap-3 mb-3 cursor-pointer' });
-        const avatar = el('img', { classes: 'w-12 h-12 rounded-full object-cover', attrs: { src: post.user.avatar, alt: post.user.name } });
-        const userInfo = el('div');
-        userInfo.append(el('p', { classes: 'font-semibold text-gray-900', text: post.user.name }));
-        userInfo.append(el('p', { classes: 'text-sm text-gray-500', text: '@' + post.user.username }));
-        userInfo.append(el('p', { classes: 'text-xs text-gray-400', text: post.time }));
-        header.append(avatar, userInfo);
-        header.addEventListener('click', () => openProfileByUid(post.user.id));
-
-        const content = el('p', { classes: 'mb-4 text-gray-800 whitespace-pre-wrap', text: post.content });
-
-        const actions = el('div', { classes: 'flex items-center justify-between text-sm select-none' });
-
-        const likeBtn = el('button', { classes: 'flex items-center gap-1 text-rose-600 hover:text-rose-700 transition', attrs: { 'aria-label': 'Like' } });
-        likeBtn.innerHTML = `<i class="fa-regular fa-heart"></i> <span>${post.likes}</span>`;
-
-        const commentBtn = el('button', { classes: 'flex items-center gap-1 text-blue-600 hover:text-blue-700 transition', attrs: { 'aria-label': 'Comment' } });
-        commentBtn.innerHTML = `<i class="fa-regular fa-comment"></i> <span>0</span>`;
-
-        const shareBtn = el('button', { classes: 'flex items-center gap-1 text-green-600 hover:text-green-700 transition', attrs: { 'aria-label': 'Share' } });
-        shareBtn.innerHTML = `<i class="fa-solid fa-share"></i> <span>${post.shares ?? 0}</span>`;
-
-        // Like handler (simple increment; add per-user likes later)
-        likeBtn.addEventListener('click', async () => {
-          if (!currentUser) { alert('Please log in to like posts'); return; }
-          await updateDoc(doc(db, "posts", post.id), { likes: increment(1) });
-          post.likes++;
-          likeBtn.querySelector('span').textContent = post.likes;
-        });
-
-        shareBtn.addEventListener('click', async () => {
-          if (!currentUser) { alert('Please log in to share posts'); return; }
-          await updateDoc(doc(db, "posts", post.id), { shares: increment(1) });
-          post.shares = (post.shares || 0) + 1;
-          shareBtn.querySelector('span').textContent = post.shares;
-          alert(`Share this post:\n"${post.content}"`);
-        });
-
-        actions.append(likeBtn, commentBtn, shareBtn);
-
-        postEl.append(header, content, actions);
-        feedEl.appendChild(postEl);
-      });
-    }
-
-    // ---------- Open Profile Modal by UID ----------
-    async function openProfileByUid(uid) {
-      const uSnap = await getDoc(doc(db, "users", uid));
-      if (!uSnap.exists()) { alert('User not found'); return; }
-      const user = { id: uSnap.id, ...uSnap.data() };
-
-      profileAvatar.src = user.avatar || `https://i.pravatar.cc/150?u=${user.id}`;
-      profileName.textContent = user.name || 'Unknown';
-      profileUsername.textContent = '@' + (user.username || 'unknown');
-      profileBio.textContent = user.bio || '';
-      profileFollowers.textContent = user.followers ?? 0;
-      profileFollowing.textContent = user.following ?? 0;
-
-      profilePosts.innerHTML = '<div class="text-sm text-gray-500">Loading posts…</div>';
-      // fetch posts by this user
-      const q = query(collection(db, "posts"), where("userId", "==", uid), orderBy("time", "desc"), limit(50));
-      const snap = await getDocs(q);
-      profilePosts.innerHTML = '';
-      snap.forEach(s => {
-        const d = s.data();
-        const card = el('div', { classes: 'bg-gray-100 p-3 rounded', text: d.content });
-        profilePosts.appendChild(card);
-      });
-
-      // Follow/unfollow logic
-      if (!currentUser) {
-        followBtn.textContent = 'Sign in to follow';
-        followBtn.disabled = false;
-        followBtn.onclick = () => authModal.classList.remove('hidden');
-      } else if (user.id === currentUser.uid) {
-        followBtn.textContent = 'This is you';
-        followBtn.disabled = true;
-      } else {
-        const meRef = doc(db, "users", currentUser.uid);
-        const meSnap = await getDoc(meRef);
-        const meData = meSnap.exists() ? meSnap.data() : { followingList: [] };
-        const isFollowing = Array.isArray(meData.followingList) && meData.followingList.includes(user.id);
-
-        followBtn.textContent = isFollowing ? 'Unfollow' : 'Follow';
-        followBtn.disabled = false;
-        followBtn.onclick = async () => {
-          const targetRef = doc(db, "users", user.id);
-          if (isFollowing) {
-            // unfollow
-            await updateDoc(targetRef, { followers: increment(-1) });
-            await updateDoc(meRef, { followingList: arrayRemove(user.id), following: increment(-1) });
-            followBtn.textContent = 'Follow';
-           
+    });
+  </script>
+</body>
+</html>
