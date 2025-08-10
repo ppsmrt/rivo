@@ -1,399 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Premium Feed</title>
-
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome CDN -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root{
-      --violet: #6C4CFF;
-      --muted: #6b7280;
-    }
-
-    html,body { height:100%; background: #fff; -webkit-font-smoothing:antialiased; }
-
-    /* Stories gradient ring */
-    .story-ring {
-      padding: 3px;
-      border-radius: 9999px;
-      background: linear-gradient(45deg,#ff5858,#ff8a00,#ffd400,#6C4CFF);
-      display:inline-block;
-    }
-    .story-inner {
-      background: white;
-      padding: 2px;
-      border-radius: 9999px;
-      display:inline-block;
-    }
-
-    /* Post animation */
-    .post-card {
-      opacity: 0;
-      transform: translateY(16px);
-      animation: postIn 480ms ease forwards;
-    }
-    @keyframes postIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* heart burst */
-    .burst {
-      position: absolute;
-      pointer-events: none;
-      width: 1px; height: 1px;
-    }
-    .particle {
-      position: absolute;
-      width: 18px; height: 18px;
-      transform: translate(-50%, -50%) scale(0.2);
-      opacity: 0;
-      will-change: transform, opacity;
-    }
-    /* particle shapes (hearts) */
-    .particle::before{
-      content: "❤";
-      display:block;
-      font-size: 18px;
-      line-height:18px;
-      transform: translateY(-2px);
-    }
-
-    /* small UI touches */
-    .nav-blur {
-      backdrop-filter: blur(6px);
-      background: rgba(255,255,255,0.75);
-    }
-
-    /* image styling */
-    .post-image {
-      width:100%;
-      height: auto;
-      max-height: 68vw; /* mobile-friendly */
-      object-fit: cover;
-      border-radius: 14px;
-    }
-
-    /* like-icon pressed state */
-    .like-ico.liked { color: #ef476f; transform: scale(1.18); }
-
-    /* subtle shadow and card radius */
-    .card {
-      border-radius: 16px;
-      box-shadow: 0 8px 28px rgba(16,24,40,0.06);
-      overflow: hidden;
-    }
-
-    /* small responsive tweaks */
-    @media(min-width:768px){
-      .max-container { max-width:720px; }
-      .post-image { max-height:420px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo Feed</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body class="antialiased text-gray-900">
+<body>
 
-  <!-- Top bar -->
-  <header class="sticky top-0 z-50 bg-white/60 backdrop-blur-sm border-b border-gray-100">
-    <div class="max-container mx-auto px-4 flex items-center justify-between h-14">
-      <div class="flex items-center gap-2">
-        <h1 class="text-xl font-extrabold" style="color:var(--violet)">Rivo</h1>
-      </div>
-      <div class="flex items-center gap-3">
-        <button aria-label="New post" class="p-2 rounded-lg text-violet-600 hover:bg-violet-50 transition">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-        <button aria-label="Profile" class="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition">
-          <i class="fa-regular fa-circle-user text-2xl"></i>
-        </button>
-      </div>
+  <!-- Header -->
+  <header class="app-header">
+    <h1 class="logo">Rivo</h1>
+    <div class="header-icons">
+      <i class="fa-regular fa-paper-plane"></i>
     </div>
   </header>
 
   <!-- Stories -->
-  <section class="max-container mx-auto px-4 py-3 overflow-x-auto">
-    <div class="flex gap-4">
-      <!-- 'Your story' -->
-      <div class="flex flex-col items-center min-w-[64px]">
-        <div class="story-ring">
-          <div class="story-inner">
-            <img src="https://i.pravatar.cc/64?u=you" class="w-14 h-14 rounded-full border-2 border-white object-cover" alt="You">
-          </div>
-        </div>
-        <span class="text-xs mt-2 text-gray-600">Your Story</span>
-      </div>
-      <!-- Template stories (will be injected) -->
-      <div id="storiesRow" class="flex gap-4"></div>
-    </div>
+  <section class="stories">
+    <div class="story"><img src="https://i.pravatar.cc/80?img=1"><span>Alex</span></div>
+    <div class="story"><img src="https://i.pravatar.cc/80?img=2"><span>Sam</span></div>
+    <div class="story"><img src="https://i.pravatar.cc/80?img=3"><span>Lily</span></div>
+    <div class="story"><img src="https://i.pravatar.cc/80?img=4"><span>John</span></div>
+    <div class="story"><img src="https://i.pravatar.cc/80?img=5"><span>Emma</span></div>
   </section>
 
-  <!-- Feed Main -->
-  <main id="feed" class="max-container mx-auto px-4 pb-28 space-y-4"></main>
-
-  <!-- Floating burst container -->
-  <div id="burst-root" class="burst"></div>
-
-  <!-- Bottom navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 nav-blur border-t border-gray-200 z-50">
-    <div class="max-container mx-auto px-6 flex justify-between items-center h-16">
-      <div class="flex justify-between w-full max-w-md mx-auto">
-        <button class="flex flex-col items-center text-violet-600"><i class="fa-solid fa-house text-lg"></i><span class="text-xs">Home</span></button>
-        <button class="flex flex-col items-center text-gray-500 hover:text-violet-600"><i class="fa-solid fa-magnifying-glass text-lg"></i><span class="text-xs">Search</span></button>
-        <button class="flex items-center justify-center bg-white rounded-full p-3 shadow-md -mt-6" aria-label="New"><i class="fa-solid fa-square-plus text-2xl text-violet-600"></i></button>
-        <button class="flex flex-col items-center text-gray-500 hover:text-violet-600"><i class="fa-regular fa-message text-lg"></i><span class="text-xs">Messages</span></button>
-        <button class="flex flex-col items-center text-gray-500 hover:text-violet-600"><i class="fa-regular fa-user text-lg"></i><span class="text-xs">Profile</span></button>
+  <!-- Feed -->
+  <main class="feed">
+    <!-- Post -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/50?img=10" class="avatar">
+        <span class="username">alex_inspire</span>
       </div>
-    </div>
+      <img src="https://picsum.photos/id/1011/800/800" class="post-img">
+      <div class="post-actions">
+        <i class="fa-regular fa-heart like-btn"></i>
+        <i class="fa-regular fa-comment"></i>
+        <i class="fa-regular fa-paper-plane"></i>
+      </div>
+      <div class="post-likes">Liked by <b>Sam</b> and <b>120 others</b></div>
+      <div class="post-caption"><b>alex_inspire</b> Enjoying the vibes 🌅</div>
+    </article>
+
+    <!-- Repeat demo posts -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/50?img=11" class="avatar">
+        <span class="username">travel_guru</span>
+      </div>
+      <img src="https://picsum.photos/id/1015/800/800" class="post-img">
+      <div class="post-actions">
+        <i class="fa-regular fa-heart like-btn"></i>
+        <i class="fa-regular fa-comment"></i>
+        <i class="fa-regular fa-paper-plane"></i>
+      </div>
+      <div class="post-likes">Liked by <b>Emma</b> and <b>312 others</b></div>
+      <div class="post-caption"><b>travel_guru</b> Mountains are calling 🏔</div>
+    </article>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <i class="fa-solid fa-house"></i>
+    <i class="fa-regular fa-compass"></i>
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-comment-dots"></i>
+    <i class="fa-regular fa-user"></i>
   </nav>
 
-  <script>
-    /* ---------- Demo data ---------- */
-    const DEMO = [
-      { user: "travelvibes", avatar: "https://i.pravatar.cc/80?img=12", imgTag: "beach", caption: "Golden hour by the sea 🌅" },
-      { user: "coffee.stories", avatar: "https://i.pravatar.cc/80?img=31", imgTag: "coffee", caption: "Perfect flat white at sunrise ☕" },
-      { user: "citylines", avatar: "https://i.pravatar.cc/80?img=18", imgTag: "city", caption: "Midweek city wanderings ✨" },
-      { user: "foresttrail", avatar: "https://i.pravatar.cc/80?img=25", imgTag: "forest", caption: "Fresh trails and quiet minds 🌲" },
-      { user: "style.diary", avatar: "https://i.pravatar.cc/80?img=16", imgTag: "fashion", caption: "Minimal looks for busy days" },
-      { user: "pet.pals", avatar: "https://i.pravatar.cc/80?img=55", imgTag: "dog", caption: "My little pal doing tricks 🐶" },
-      { user: "mountain.moments", avatar: "https://i.pravatar.cc/80?img=43", imgTag: "mountain", caption: "Views that reset you ⛰️" },
-      { user: "artspaces", avatar: "https://i.pravatar.cc/80?img=21", imgTag: "art", caption: "Weekend gallery stroll 🎨" },
-      { user: "fitness.daily", avatar: "https://i.pravatar.cc/80?img=32", imgTag: "fitness", caption: "Small wins add up 💪" },
-      { user: "music.beats", avatar: "https://i.pravatar.cc/80?img=29", imgTag: "music", caption: "New playlist on repeat 🎧" },
-      { user: "coastlife", avatar: "https://i.pravatar.cc/80?img=49", imgTag: "ocean", caption: "Salt air and good company" },
-      { user: "sunset.chaser", avatar: "https://i.pravatar.cc/80?img=61", imgTag: "sunset", caption: "Chasing colors into night" }
-    ];
-
-    /* Story users (use first 8) */
-    const STORIES = [
-      { user: "Maya", avatar: "https://i.pravatar.cc/64?img=6" },
-      { user: "Arjun", avatar: "https://i.pravatar.cc/64?img=7" },
-      { user: "Lena", avatar: "https://i.pravatar.cc/64?img=8" },
-      { user: "Ravi", avatar: "https://i.pravatar.cc/64?img=9" },
-      { user: "Nora", avatar: "https://i.pravatar.cc/64?img=10" },
-      { user: "Sam", avatar: "https://i.pravatar.cc/64?img=11" },
-      { user: "Tina", avatar: "https://i.pravatar.cc/64?img=13" },
-      { user: "Omar", avatar: "https://i.pravatar.cc/64?img=14" }
-    ];
-
-    /* ---------- Utility helpers ---------- */
-    const feedEl = document.getElementById('feed');
-    const storiesRow = document.getElementById('storiesRow');
-    const burstRoot = document.getElementById('burst-root');
-
-    let nextPostIndex = 0;
-
-    function unsplashUrl(tag, w = 900, h = 900) {
-      // use source.unsplash for random premium lifestyle shots
-      return `https://source.unsplash.com/random/${w}x${h}/?${tag}`;
-    }
-
-    /* ---------- Render stories ---------- */
-    function renderStories() {
-      STORIES.forEach(s => {
-        const tpl = document.createElement('div');
-        tpl.className = "flex flex-col items-center min-w-[64px]";
-        tpl.innerHTML = `
-          <div class="story-ring">
-            <div class="story-inner">
-              <img src="${s.avatar}" class="w-14 h-14 rounded-full border-2 border-white object-cover" alt="${s.user}">
-            </div>
-          </div>
-          <span class="text-xs mt-2 text-gray-600">${s.user}</span>
-        `;
-        storiesRow.appendChild(tpl);
-      });
-    }
-
-    /* ---------- Create post card ---------- */
-    function createPostCard(postData, delay = 0) {
-      const card = document.createElement('article');
-      card.className = `post-card card bg-white p-3 mb-4`;
-      card.style.animationDelay = `${delay}ms`;
-
-      // random initial like count
-      const likes = Math.floor(Math.random()*120) + 3;
-
-      card.innerHTML = `
-        <div class="flex items-center gap-3 px-1 py-2">
-          <img src="${postData.avatar}" alt="${postData.user}" class="w-10 h-10 rounded-full object-cover">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-gray-900">${postData.user}</span>
-              <span class="text-xs text-gray-400"> • 2h</span>
-            </div>
-            <div class="text-xs text-gray-500">Location</div>
-          </div>
-        </div>
-
-        <div class="px-1">
-          <img src="${unsplashUrl(postData.imgTag)}" alt="${postData.imgTag}" class="post-image mt-2 w-full" loading="lazy">
-        </div>
-
-        <div class="px-1 pt-3 pb-2 flex items-center justify-between">
-          <div class="flex items-center gap-4 text-2xl">
-            <button class="like-btn flex items-center gap-2 text-gray-500" aria-label="Like">
-              <i class="fa-regular fa-heart like-ico"></i>
-              <span class="like-count text-sm">${likes}</span>
-            </button>
-            <button class="comment-btn text-blue-500 text-xl" aria-label="Comment"><i class="fa-regular fa-comment"></i></button>
-            <button class="share-btn text-green-500 text-xl" aria-label="Share"><i class="fa-solid fa-paper-plane"></i></button>
-          </div>
-          <div class="text-gray-600 text-sm">Save</div>
-        </div>
-
-        <div class="px-3 pb-3">
-          <p class="text-sm"><span class="font-semibold">${postData.user}</span> ${postData.caption}</p>
-        </div>
-      `;
-
-      // attach like handler with heart burst
-      const likeBtn = card.querySelector('.like-btn');
-      const likeIco = card.querySelector('.like-ico');
-      const likeCount = card.querySelector('.like-count');
-      let liked = false;
-
-      likeBtn.addEventListener('click', (ev) => {
-        liked = !liked;
-        // toggle icon style
-        if (liked) {
-          likeIco.classList.remove('fa-regular'); likeIco.classList.add('fa-solid', 'text-red-500');
-          animateBurst(ev.clientX, ev.clientY);
-          likeCount.textContent = +likeCount.textContent + 1;
-          likeBtn.classList.add('liked');
-        } else {
-          likeIco.classList.remove('fa-solid', 'text-red-500'); likeIco.classList.add('fa-regular');
-          likeCount.textContent = Math.max(0, +likeCount.textContent - 1);
-          likeBtn.classList.remove('liked');
-        }
-      });
-
-      // comment (open small alert modal for demo)
-      const commentBtn = card.querySelector('.comment-btn');
-      commentBtn.addEventListener('click', () => {
-        const text = prompt("Add a comment (demo):");
-        if (text) {
-          // small visual feedback
-          commentBtn.classList.add('animate-pulse');
-          setTimeout(()=> commentBtn.classList.remove('animate-pulse'), 700);
-        }
-      });
-
-      // share (copy mock link)
-      const shareBtn = card.querySelector('.share-btn');
-      shareBtn.addEventListener('click', async () => {
-        const link = `https://rivo.app/demo/post/${Math.floor(Math.random()*100000)}`;
-        try {
-          await navigator.clipboard.writeText(link);
-          showToast('Link copied to clipboard');
-        } catch {
-          alert('Link: ' + link);
-        }
-      });
-
-      return card;
-    }
-
-    /* ---------- Heart burst animation (particles) ---------- */
-    function animateBurst(clientX, clientY) {
-      // create multiple particles
-      const count = 10;
-      const rootRect = document.body.getBoundingClientRect();
-      for (let i=0;i<count;i++){
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = `${clientX}px`;
-        p.style.top = `${clientY}px`;
-        // color variety
-        const colors = ['#ef476f','#ffb86b','#ffd166','#6C4CFF','#ff5d8f'];
-        p.style.color = colors[Math.floor(Math.random()*colors.length)];
-        burstRoot.appendChild(p);
-
-        // random trajectory
-        const angle = (Math.random()*120 - 60) * (Math.PI/180);
-        const dist = 60 + Math.random()*80;
-        const dx = Math.cos(angle)*dist;
-        const dy = Math.sin(angle)*dist - (30 + Math.random()*40);
-
-        // animate using Web Animations API for smoothness
-        p.animate([
-          { transform: `translate(0,0) scale(0.2)`, opacity: 1 },
-          { transform: `translate(${dx}px, ${dy}px) scale(1)`, opacity: 0.9, offset: 0.6 },
-          { transform: `translate(${dx*1.2}px, ${dy*1.2}px) scale(0.6)`, opacity: 0 }
-        ], {
-          duration: 700 + Math.random()*300,
-          easing: 'cubic-bezier(.2,.9,.3,1)'
-        });
-
-        // remove after animation
-        setTimeout(()=> p.remove(), 1100);
-      }
-    }
-
-    /* ---------- Toast small notice ---------- */
-    function showToast(msg) {
-      const t = document.createElement('div');
-      t.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 bg-black/80 text-white text-sm px-4 py-2 rounded-lg z-60';
-      t.textContent = msg;
-      document.body.appendChild(t);
-      setTimeout(()=> t.classList.add('opacity-0'), 1400);
-      setTimeout(()=> t.remove(), 2200);
-    }
-
-    /* ---------- Initial load & infinite scroll ---------- */
-    function loadInitialPosts() {
-      // load 12 posts
-      for (let i=0;i<12;i++){
-        const data = DEMO[i % DEMO.length];
-        const card = createPostCard(data, i*40);
-        feed.appendChild(card);
-      }
-      nextPostIndex = 12;
-    }
-
-    function loadMore(n=3) {
-      for (let i=0;i<n;i++){
-        const data = DEMO[Math.floor(Math.random()*DEMO.length)];
-        const card = createPostCard(data, 0);
-        feed.appendChild(card);
-      }
-    }
-
-    // infinite scroll listener (throttled)
-    let loadingMore = false;
-    window.addEventListener('scroll', () => {
-      const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400);
-      if (nearBottom && !loadingMore) {
-        loadingMore = true;
-        // small loader indicator
-        const loader = document.createElement('div');
-        loader.className = "py-8 text-center text-gray-400";
-        loader.innerText = "Loading more...";
-        feed.appendChild(loader);
-        setTimeout(() => {
-          loader.remove();
-          loadMore(3);
-          loadingMore = false;
-        }, 900);
-      }
-    });
-
-    /* ---------- Setup stories & feed ---------- */
-    renderStories();
-    loadInitialPosts();
-
-    /* Accessibility: keyboard like (space on focused like btn) */
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && document.activeElement && document.activeElement.classList.contains('like-btn')) {
-        document.activeElement.click();
-        e.preventDefault();
-      }
-    });
-
-  </script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
