@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rivo - My Account</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Main container -->
+  <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
+    <h1 class="text-2xl font-bold mb-4">My Account</h1>
+
+    <div id="accountInfo" class="space-y-4">
+      <!-- Account details will be injected here -->
+    </div>
+
+    <div class="mt-6 flex gap-4">
+      <button id="editProfileBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Edit Profile</button>
+      <button id="signOutBtn" class="bg-gray-300 px-4 py-2 rounded">Sign Out</button>
+    </div>
+  </main>
+
+  <!-- Centralized Firebase + UI logic -->
+  <script type="module">
+    import '/assets/js/realtime-app.js';
+
+    import { getAuth, onAuthStateChanged, signOut } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, update } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const auth = getAuth();
+    const db = getDatabase();
+    const accountInfo = document.getElementById('accountInfo');
+
+    // Load account data
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        accountInfo.innerHTML = `<p class="text-gray-500">Please sign in to view your account.</p>`;
+        return;
+      }
+
+      const userRef = ref(db, `users/${user.uid}`);
+      onValue(userRef, (snap) => {
+        const data = snap.val() || {};
+        accountInfo.innerHTML = `
+          <div class="flex items-center gap-4">
+            <img src="${data.photoURL || 'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
+            <div>
+              <div class="text-xl font-semibold">${data.displayName || user.email}</div>
+              <div class="text-sm text-gray-500">${data.bio || 'No bio yet'}</div>
+            </div>
+          </div>
+        `;
+      });
+    });
+
+    // Edit profile button
+    document.getElementById('editProfileBtn').addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) return alert('You must sign in first.');
+
+      const displayName = prompt('Enter new display name:');
+      const bio = prompt('Enter new bio:');
+      if (displayName || bio) {
+        await update(ref(db, `users/${user.uid}`), { displayName, bio });
+        alert('Profile updated successfully!');
+      }
+    });
+
+    // Sign out
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      alert('Signed out successfully.');
+      location.reload();
+    });
+
+  </script>
+</body>
+</html>
