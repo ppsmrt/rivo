@@ -1,87 +1,96 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Rivo - Settings</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #f9fafb;
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
-    <h1 class="text-2xl font-bold mb-4">Account Settings</h1>
+<body class="fade-in">
 
-    <form id="settingsForm" class="space-y-4">
-      <div>
-        <label class="block mb-1 font-medium">Display Name</label>
-        <input type="text" id="displayName" class="w-full border px-3 py-2 rounded" placeholder="Enter display name">
-      </div>
+  <!-- Header -->
+  <header class="flex items-center justify-between p-4 bg-white shadow">
+    <h1 class="text-xl font-bold">Settings</h1>
+    <button class="text-violet-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+  </header>
 
-      <div>
-        <label class="block mb-1 font-medium">Bio</label>
-        <textarea id="bio" class="w-full border px-3 py-2 rounded" placeholder="Enter bio"></textarea>
-      </div>
-
-      <div>
-        <label class="block mb-1 font-medium">Profile Picture</label>
-        <input type="file" id="photo" accept="image/*" class="w-full">
-      </div>
-
-      <button type="submit" class="bg-violet-600 text-white px-4 py-2 rounded">Save Changes</button>
-    </form>
-
-    <hr class="my-6">
-
-    <div>
-      <button id="signOutBtn" class="bg-red-500 text-white px-4 py-2 rounded">Sign Out</button>
+  <!-- Settings List -->
+  <div class="p-4 space-y-4">
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-semibold text-gray-800 mb-3">Account</h2>
+      <ul class="space-y-3">
+        <li class="flex items-center justify-between">
+          <span>Change Password</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Email Preferences</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Privacy Settings</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </li>
+      </ul>
     </div>
-  </main>
 
-<script type="module">
-  import '/assets/js/realtime-app.js';
-  import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-semibold text-gray-800 mb-3">Notifications</h2>
+      <ul class="space-y-3">
+        <li class="flex items-center justify-between">
+          <span>Push Notifications</span>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-violet-500 rounded-full peer peer-checked:bg-violet-600 relative">
+              <div class="w-5 h-5 bg-white rounded-full absolute left-[2px] top-[2px] peer-checked:translate-x-full transition-transform"></div>
+            </div>
+          </label>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Email Notifications</span>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-violet-500 rounded-full peer peer-checked:bg-violet-600 relative">
+              <div class="w-5 h-5 bg-white rounded-full absolute left-[2px] top-[2px] peer-checked:translate-x-full transition-transform"></div>
+            </div>
+          </label>
+        </li>
+      </ul>
+    </div>
 
-  const auth = getAuth();
-  const db = getDatabase();
-  const storage = getStorage();
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-semibold text-gray-800 mb-3">Support</h2>
+      <ul class="space-y-3">
+        <li class="flex items-center justify-between">
+          <span>Help Center</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Report a Problem</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      alert("Please sign in first");
-      window.location.href = "index.html";
-      return;
-    }
+  <!-- Logout -->
+  <div class="p-4">
+    <button class="w-full bg-red-500 text-white py-2 rounded-lg">Log Out</button>
+  </div>
 
-    document.getElementById("displayName").value = user.displayName || "";
-    document.getElementById("bio").value = user.bio || "";
-  });
-
-  document.getElementById("settingsForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const displayName = document.getElementById("displayName").value;
-    const bio = document.getElementById("bio").value;
-    const photoFile = document.getElementById("photo").files[0];
-
-    let photoURL = user.photoURL;
-
-    if (photoFile) {
-      const fileRef = sRef(storage, `profile_photos/${user.uid}`);
-      await uploadBytes(fileRef, photoFile);
-      photoURL = await getDownloadURL(fileRef);
-    }
-
-    await updateProfile(user, { displayName, photoURL });
-    await update(ref(db, `users/${user.uid}`), { displayName, bio, photoURL });
-
-    alert("Profile updated successfully!");
-  });
-
-  document.getElementById("signOutBtn").addEventListener("click", () => {
-    signOut(auth);
-  });
-</script>
 </body>
 </html>
