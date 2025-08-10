@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auth UI</title>
+  <title>Auth UI Premium</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -14,33 +15,55 @@
       box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.06);
       border-radius: 1rem;
     }
-    .input-field {
-      background-color: #f5f6fa;
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 2px solid #6C4CFF;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      transition: all 0.3s ease;
     }
-    .btn-primary {
-      background-color: #6C4CFF;
+    .input-wrapper:focus-within {
+      box-shadow: 0 0 0 3px rgba(108, 76, 255, 0.3);
     }
-    .btn-primary:hover {
-      background-color: #5a3de0;
+    .input-wrapper i {
+      color: #6C4CFF;
+      margin-right: 0.5rem;
     }
-    .fade {
-      transition: all 0.4s ease;
+    .input-wrapper input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+    }
+    .btn-premium {
+      background: linear-gradient(90deg, #6C4CFF, #8E6CFF);
+      box-shadow: 0 4px 15px rgba(108, 76, 255, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 76, 255, 0.5);
     }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen px-4">
-  <div class="auth-card w-full max-w-md p-8 bg-white fade">
+  <div class="auth-card w-full max-w-md p-8 bg-white">
     <h1 id="form-title" class="text-2xl font-bold mb-2">Sign In</h1>
     <p id="form-subtitle" class="text-gray-500 mb-6">Welcome back! Please sign in to your account.</p>
 
     <form id="auth-form" class="space-y-4">
-      <div>
-        <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+      <div class="input-wrapper">
+        <i class="fa fa-envelope"></i>
+        <input type="email" placeholder="Email" />
       </div>
-      <div>
-        <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+      <div class="input-wrapper">
+        <i class="fa fa-lock"></i>
+        <input type="password" placeholder="Password" />
       </div>
-      <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign In</button>
+      <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+        <i class="fa fa-sign-in-alt"></i> Sign In
+      </button>
     </form>
 
     <div class="flex items-center my-6">
@@ -86,25 +109,34 @@
 
       authForm.innerHTML = isSignUp
         ? `
-          <div>
-            <input type="text" placeholder="Full Name" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          <div class="input-wrapper">
+            <i class="fa fa-user"></i>
+            <input type="text" placeholder="Full Name" />
           </div>
-          <div>
-            <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          <div class="input-wrapper">
+            <i class="fa fa-envelope"></i>
+            <input type="email" placeholder="Email" />
           </div>
-          <div>
-            <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          <div class="input-wrapper">
+            <i class="fa fa-lock"></i>
+            <input type="password" placeholder="Password" />
           </div>
-          <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign Up</button>
+          <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+            <i class="fa fa-user-plus"></i> Sign Up
+          </button>
         `
         : `
-          <div>
-            <input type="email" placeholder="Email" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          <div class="input-wrapper">
+            <i class="fa fa-envelope"></i>
+            <input type="email" placeholder="Email" />
           </div>
-          <div>
-            <input type="password" placeholder="Password" class="input-field w-full px-4 py-3 rounded-lg outline-none" />
+          <div class="input-wrapper">
+            <i class="fa fa-lock"></i>
+            <input type="password" placeholder="Password" />
           </div>
-          <button type="submit" class="btn-primary text-white w-full py-3 rounded-lg font-semibold">Sign In</button>
+          <button type="submit" class="btn-premium text-white w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+            <i class="fa fa-sign-in-alt"></i> Sign In
+          </button>
         `;
     });
   </script>
