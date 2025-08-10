@@ -1,88 +1,263 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rivo - Chat</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rivo — Chat</title>
+
+  <!-- Tailwind optional (keeps compatibility) -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Central theme -->
+  <link rel="stylesheet" href="/assets/css/theme.css">
+
+  <style>
+    /* small page-specific overrides */
+    .conversation { max-width: 780px; margin: 14px auto; overflow: hidden; }
+    .messages::-webkit-scrollbar { width: 8px; height: 8px }
+    .messages::-webkit-scrollbar-thumb { background: rgba(16,24,40,0.06); border-radius: 8px }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-  
-  <!-- Header -->
-  <header class="bg-violet-600 text-white p-4 text-lg font-semibold text-center shadow">
-    Rivo Chat
-  </header>
+<body class="antialiased">
 
-  <!-- Chat Container -->
-  <main class="flex-1 max-w-3xl mx-auto w-full p-4 flex flex-col">
-    <!-- Messages -->
-    <div id="messagesArea" class="flex-1 overflow-y-auto bg-white p-4 rounded shadow">
-      <!-- Messages will be injected here -->
-    </div>
+  <!-- ui.js will inject header + footer automatically -->
 
-    <!-- Input Box -->
-    <div class="mt-4 flex items-center gap-2">
-      <input id="messageInput" type="text" placeholder="Type a message..." 
-        class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-violet-300"/>
-      <button id="sendBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Send</button>
+  <main class="chat-shell page-wrapper">
+    <div class="chat-column">
+      <div class="conversation">
+        <!-- conversation header -->
+        <div class="p-4 flex items-center gap-3 border-b" style="background:transparent">
+          <div class="story-ring"><img src="https://i.pravatar.cc/64?u=42" alt="avatar"></div>
+          <div>
+            <div class="font-semibold" id="conv-title">General Chat</div>
+            <div class="text-muted text-sm" id="conv-sub">Public room • Live</div>
+          </div>
+          <div style="margin-left:auto" class="text-sm text-muted">Online</div>
+        </div>
+
+        <!-- messages -->
+        <div id="messages" class="messages" role="list" aria-live="polite" aria-atomic="false"></div>
+
+        <!-- input bar -->
+        <div class="input-bar">
+          <div class="input-field">
+            <input id="messageInput" type="text" placeholder="Message @everyone..." aria-label="Message input" />
+            <button id="attachBtn" class="icon-btn" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
+          </div>
+          <button id="sendBtn" class="send-btn" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
     </div>
   </main>
 
-  <!-- Auth Buttons -->
-  <div class="p-4 text-center">
-    <button id="signInBtn" class="bg-violet-600 text-white px-3 py-1 rounded">Sign in</button>
-    <button id="signOutBtn" class="hidden px-3 py-1 bg-gray-300 rounded">Sign out</button>
-  </div>
+  <!-- Shared JS -->
+  <script type="module">
+    // UI injector + animation helpers
+    import '/assets/js/ui.js';
+    import { animateIn, scrollToBottom } from '/assets/js/animations.js';
 
-<script type="module">
-  import '/assets/js/realtime-app.js';
+    // Central Firebase init (must export `db`)
+    import { db } from '/assets/js/firebase-init.js'; // your central init
+    import { ref, push, onChildAdded, serverTimestamp, set, onValue, remove, update } 
+      from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js';
 
-  import { getDatabase, ref, push, onChildAdded, serverTimestamp } 
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getAuth } 
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    // Small helpers
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
 
-  const auth = getAuth();
-  const db = getDatabase();
-  const messagesArea = document.getElementById('messagesArea');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
+    // chatId from query or default 'general'
+    const params = new URLSearchParams(window.location.search);
+    const chatId = params.get('chatId') || 'general';
 
-  // Load messages in real-time
-  const chatRef = ref(db, 'chat/general');
-  onChildAdded(chatRef, (snapshot) => {
-    const msg = snapshot.val();
-    const div = document.createElement('div');
-    div.className = "mb-2";
-    div.innerHTML = `<strong>${msg.senderName || 'Anonymous'}:</strong> ${msg.text}`;
-    messagesArea.appendChild(div);
-    messagesArea.scrollTop = messagesArea.scrollHeight;
-  });
+    // current user from localStorage (your signin/signup stores user)
+    let currentUser = null;
+    try { currentUser = JSON.parse(localStorage.getItem('user')) || null; } catch(e){ currentUser = null; }
 
-  // Send message
-  sendBtn.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert('Sign in to send messages');
-      return;
+    function requireAuth() {
+      if (!currentUser) {
+        // if no local user, redirect to signin
+        window.location.href = 'signin.html';
+        return false;
+      }
+      return true;
     }
-    const text = messageInput.value.trim();
-    if (!text) return;
-    await push(chatRef, {
-      senderId: user.uid,
-      senderName: user.displayName || user.email || 'User',
-      text,
-      timestamp: serverTimestamp()
+
+    // render one message
+    function renderMessage(msgId, msgData) {
+      // guard
+      if (!msgData) return;
+
+      const isMe = currentUser && (msgData.senderId === currentUser.id || msgData.senderId === currentUser.uid || msgData.senderId === currentUser.uid?.toString());
+
+      const row = document.createElement('div');
+      row.className = `msg ${isMe ? 'outgoing' : 'incoming'}`;
+
+      if (!isMe) {
+        const av = document.createElement('img');
+        av.className = 'avatar';
+        av.src = msgData.senderAvatar || `https://i.pravatar.cc/40?u=${msgData.senderId||'anon'}`;
+        av.alt = msgData.senderName || 'User';
+        row.appendChild(av);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${isMe ? 'out' : 'in'}`;
+      bubble.innerHTML = `<div class="message-text">${escapeHtml(msgData.text || '')}</div>`;
+
+      // small meta & timestamp
+      const meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      const ts = msgData.timestamp ? new Date(msgData.timestamp) : new Date();
+      meta.textContent = timeAgo(ts.getTime());
+
+      const container = document.createElement('div');
+      container.appendChild(bubble);
+      container.appendChild(meta);
+
+      row.appendChild(container);
+
+      if (isMe) {
+        // avatar on right
+        const av = document.createElement('img');
+        av.className = 'avatar';
+        av.src = currentUser.photoURL || `https://i.pravatar.cc/40?u=${currentUser.id || currentUser.uid || 'me'}`;
+        av.alt = currentUser.name || currentUser.username || 'You';
+        row.appendChild(av);
+      }
+
+      messagesEl.appendChild(row);
+      // animate
+      requestAnimationFrame(() => { animateIn(row); });
+      // keep scrolled
+      scrollToBottom(messagesEl);
+    }
+
+    // escape
+    function escapeHtml(s){ return s ? String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]) : ''; }
+
+    // time ago
+    function timeAgo(ms) {
+      const seconds = Math.floor((Date.now() - ms) / 1000);
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds/60);
+      if (minutes < 60) return `${minutes}m`;
+      const hours = Math.floor(minutes/60);
+      if (hours < 24) return `${hours}h`;
+      const days = Math.floor(hours/24);
+      return `${days}d`;
+    }
+
+    // subscribe to messages (Realtime DB path: messages/{chatId})
+    function startListening() {
+      const msgsRef = ref(db, `messages/${chatId}`);
+      // load history (child_added will fire for existing children)
+      onChildAdded(msgsRef, (snap) => {
+        const msg = snap.val();
+        renderMessage(snap.key, msg);
+      });
+
+      // listen to typing indicator (path: typing/{chatId}/{uid})
+      const typingRef = ref(db, `typing/${chatId}`);
+      onValue(typingRef, snap => {
+        const val = snap.val() || {};
+        // show a simple typing indicator if anyone except me is typing
+        const othersTyping = Object.keys(val).some(uid => {
+          if (!currentUser) return true;
+          return uid !== (currentUser.id || currentUser.uid || currentUser.uid?.toString());
+        });
+        // Remove any existing typing nodes
+        const existing = document.querySelectorAll('.msg.typing-row');
+        existing.forEach(e => e.remove());
+        if (othersTyping) {
+          const row = document.createElement('div');
+          row.className = 'msg incoming typing-row';
+          const av = document.createElement('img');
+          av.className = 'avatar';
+          av.src = `https://i.pravatar.cc/40?u=typing`;
+          row.appendChild(av);
+          const typ = document.createElement('div');
+          typ.className = 'typing';
+          typ.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+          row.appendChild(typ);
+          messagesEl.appendChild(row);
+          scrollToBottom(messagesEl);
+        }
+      });
+    }
+
+    // send message
+    async function sendMessage(text) {
+      if (!requireAuth()) return;
+      text = (text || '').trim();
+      if (!text) return;
+      const msgsRef = ref(db, `messages/${chatId}`);
+      const payload = {
+        text,
+        senderId: currentUser.id || currentUser.uid || currentUser.uid?.toString() || currentUser.phone || 'anon',
+        senderName: currentUser.name || currentUser.username || currentUser.displayName || currentUser.email || 'You',
+        senderAvatar: currentUser.photoURL || `https://i.pravatar.cc/40?u=${currentUser.id || currentUser.uid || 'me'}`,
+        timestamp: Date.now()
+      };
+      await push(msgsRef, payload);
+      inputEl.value = '';
+      // clear typing state
+      const typingMeRef = ref(db, `typing/${chatId}/${payload.senderId}`);
+      try { await remove(typingMeRef); } catch(e){ /* ignore */ }
+    }
+
+    // typing state set/unset
+    let typingTimeout = null;
+    function setTyping(on) {
+      if (!requireAuth()) return;
+      const uid = currentUser.id || currentUser.uid || currentUser.uid?.toString() || 'anon';
+      const typingRef = ref(db, `typing/${chatId}/${uid}`);
+      if (on) {
+        set(typingRef, true).catch(()=>{});
+        // auto clear after 4 sec of no typing
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          remove(typingRef).catch(()=>{});
+        }, 3500);
+      } else {
+        remove(typingRef).catch(()=>{});
+      }
+    }
+
+    // wire input events
+    inputEl.addEventListener('input', (e) => {
+      const v = inputEl.value;
+      if (v && v.length > 0) setTyping(true);
+      else setTyping(false);
     });
-    messageInput.value = '';
-  });
 
-  // Show/hide sign out
-  window.addEventListener('rivo:authChange', (e) => {
-    const u = e.detail;
-    document.getElementById('signOutBtn').classList.toggle('hidden', !u);
-  });
+    sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(inputEl.value);
+      }
+    });
 
-</script>
+    // init
+    (function init(){
+      // quick title update
+      const titleEl = document.getElementById('conv-title');
+      titleEl.textContent = (chatId === 'general') ? 'General Chat' : `Chat: ${chatId}`;
+
+      // if not authed, redirect to signin
+      if (!currentUser) {
+        // allow viewing but require sign in to send
+        // optional: redirect
+        // window.location.href = 'signin.html';
+      }
+
+      startListening();
+    })();
+
+  </script>
 </body>
 </html>
