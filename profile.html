@@ -3,79 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rivo - Profile</title>
+  <title>Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .violet-btn {
+      color: #7c3aed;
+    }
+    .violet-outline {
+      border: 1px solid #7c3aed;
+    }
+    .cover-photo {
+      height: 200px;
+      object-fit: cover;
+    }
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border: 4px solid white;
+      margin-top: -60px;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="flex flex-col min-h-screen fade-in">
 
-  <!-- Main container -->
-  <main class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-6">
-    <div id="profileHeader" class="flex items-center gap-4 mb-6">
-      <!-- Profile header will be loaded dynamically -->
+  <!-- Cover Photo -->
+  <div class="relative">
+    <img src="https://source.unsplash.com/random/1200x400?cover" class="w-full cover-photo" alt="Cover Photo"/>
+    <div class="absolute top-4 right-4">
+      <button class="bg-white p-2 rounded-full shadow"><i class="fa-solid fa-camera"></i></button>
     </div>
+  </div>
 
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Posts</h2>
-      <div id="userPosts" class="space-y-4">
-        <!-- Posts will be injected here -->
-      </div>
-    </section>
-  </main>
+  <!-- Profile Info -->
+  <div class="px-4">
+    <img src="https://i.pravatar.cc/150" class="rounded-full profile-pic shadow"/>
+    <h2 class="text-2xl font-bold mt-2">John Doe</h2>
+    <p class="text-gray-600">@johndoe</p>
+    <p class="mt-2">Photographer | Traveler | Storyteller 📸✈️</p>
+    <div class="flex gap-4 mt-3">
+      <div><span class="font-bold">250</span> Posts</div>
+      <div><span class="font-bold">5.2k</span> Followers</div>
+      <div><span class="font-bold">420</span> Following</div>
+    </div>
+    <div class="mt-4 flex gap-3">
+      <button class="bg-violet-600 text-white px-4 py-2 rounded-full">Follow</button>
+      <button class="violet-outline px-4 py-2 rounded-full">Message</button>
+    </div>
+  </div>
 
-  <!-- Centralized Firebase + UI logic -->
-  <script type="module">
-    import '/assets/js/realtime-app.js';
+  <!-- Tabs -->
+  <div class="flex border-b mt-6">
+    <button class="flex-1 py-3 text-center font-semibold border-b-2 border-violet-600">Posts</button>
+    <button class="flex-1 py-3 text-center text-gray-600">Tagged</button>
+  </div>
 
-    import { getAuth, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, onValue } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <!-- Posts Grid -->
+  <div class="grid grid-cols-3 gap-1 mt-1">
+    <img src="https://source.unsplash.com/random/400x400?sig=1" class="w-full h-40 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=2" class="w-full h-40 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=3" class="w-full h-40 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=4" class="w-full h-40 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=5" class="w-full h-40 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=6" class="w-full h-40 object-cover"/>
+  </div>
 
-    const auth = getAuth();
-    const db = getDatabase();
-
-    const profileHeader = document.getElementById('profileHeader');
-    const userPosts = document.getElementById('userPosts');
-
-    // Load profile info
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        profileHeader.innerHTML = `<p class="text-gray-500">Please sign in to view profile.</p>`;
-        return;
-      }
-
-      const userRef = ref(db, `users/${user.uid}`);
-      onValue(userRef, (snap) => {
-        const data = snap.val() || {};
-        profileHeader.innerHTML = `
-          <img src="${data.photoURL || 'https://i.pravatar.cc/80'}" class="w-20 h-20 rounded-full">
-          <div>
-            <div class="text-xl font-bold">${data.displayName || user.email}</div>
-            <div class="text-sm text-gray-500">${data.bio || 'No bio available'}</div>
-          </div>
-        `;
-      });
-
-      // Load user's posts
-      const postsRef = ref(db, `posts/${user.uid}`);
-      onValue(postsRef, (snap) => {
-        userPosts.innerHTML = '';
-        if (!snap.exists()) {
-          userPosts.innerHTML = `<p class="text-gray-500">No posts yet.</p>`;
-          return;
-        }
-
-        snap.forEach((childSnap) => {
-          const post = childSnap.val();
-          userPosts.innerHTML += `
-            <div class="p-4 bg-gray-100 rounded">
-              <div class="text-lg font-semibold">${post.title || 'Untitled'}</div>
-              <div class="text-sm text-gray-600">${post.content || ''}</div>
-            </div>
-          `;
-        });
-      });
-    });
-  </script>
 </body>
 </html>
