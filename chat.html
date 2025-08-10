@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.6rem 1rem;
+      border-radius: 20px;
+      word-break: break-word;
+    }
+    .mine {
+      background-color: #7c3aed;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+    .theirs {
+      background-color: #f1f1f1;
+      color: #333;
+      border-bottom-left-radius: 5px;
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-200 fade-in">
+    <a href="messages.html" class="text-violet-600 text-lg">
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <img src="https://i.pravatar.cc/40?u=1" class="w-10 h-10 rounded-full"/>
+    <div class="flex flex-col">
+      <span class="font-semibold">john_doe</span>
+      <span class="text-xs text-gray-500">Online</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="flex-1 overflow-y-auto px-4 py-3 space-y-4 fade-in">
+
+    <!-- Theirs -->
+    <div class="flex items-end gap-2">
+      <img src="https://i.pravatar.cc/35?u=1" class="w-8 h-8 rounded-full"/>
+      <div>
+        <div class="chat-bubble theirs">Hey! How’s it going?</div>
+        <span class="text-xs text-gray-400">2:30 PM</span>
+      </div>
+    </div>
+
+    <!-- Mine -->
+    <div class="flex justify-end">
+      <div>
+        <div class="chat-bubble mine">All good! Working on the new project 🚀</div>
+        <span class="text-xs text-gray-400 flex justify-end">2:32 PM</span>
+      </div>
+    </div>
+
+    <!-- Theirs -->
+    <div class="flex items-end gap-2">
+      <img src="https://i.pravatar.cc/35?u=1" class="w-8 h-8 rounded-full"/>
+      <div>
+        <div class="chat-bubble theirs">That’s awesome! Can’t wait to see it 😍</div>
+        <span class="text-xs text-gray-400">2:33 PM</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Input Bar -->
+  <div class="border-t border-gray-200 p-3 flex items-center gap-3 bg-white">
+    <button class="text-gray-500 text-xl"><i class="fa-regular fa-face-smile"></i></button>
+    <input type="text" placeholder="Message..." class="flex-1 p-2 rounded-full border border-gray-300 focus:outline-none focus:border-violet-600"/>
+    <button class="bg-violet-600 text-white p-3 rounded-full hover:bg-violet-700 transition">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+
+</body>
+</html>
