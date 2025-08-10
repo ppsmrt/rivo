@@ -3,12 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Feed & Upload (Compressed + AES-GCM)</title>
+  <title>Rivo — Home</title>
 
+  <!-- Tailwind + Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
+  <!-- Centralized theme (shared across pages) -->
+  <link rel="stylesheet" href="assets/css/theme.css" />
+
   <style>
+    /* minimal page-level tweaks that don't duplicate logic */
     :root{--violet:#7c3aed}
     body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:#f8fafc}
     .card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
@@ -17,37 +22,56 @@
     .controls{display:flex;gap:8px;align-items:center}
   </style>
 </head>
-<body class="min-h-screen p-4">
+<body class="min-h-screen">
 
-  <header class="max-w-3xl mx-auto mb-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-violet-600">Rivo</h1>
-    <div id="auth-area">
-      <button id="signInBtn" class="bg-violet-600 text-white px-3 py-1 rounded inline-flex items-center gap-2">
-        <i class="fa-brands fa-google"></i><span>Sign in</span>
-      </button>
-      <div id="userBox" class="hidden items-center gap-2">
-        <img id="userAvatar" class="w-8 h-8 rounded-full" src="">
-        <span id="userName" class="text-sm"></span>
-        <button id="signOutBtn" class="text-sm px-2 py-1">Sign out</button>
+  <!-- header / shared -->
+  <header class="bg-white shadow sticky top-0 z-40">
+    <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <h1 class="text-xl font-bold text-violet-600">Rivo</h1>
+      </div>
+
+      <div id="authControls" class="flex items-center gap-3">
+        <button id="signInBtn" class="px-3 py-1 rounded-lg bg-violet-600 text-white flex items-center gap-2">
+          <i class="fa-brands fa-google"></i>
+          <span class="hidden sm:inline">Sign in</span>
+        </button>
+
+        <div id="userBox" class="hidden items-center gap-2">
+          <img id="userAvatar" class="w-8 h-8 rounded-full object-cover" src="" alt="avatar">
+          <span id="userName" class="text-sm"></span>
+          <button id="signOutBtn" class="text-sm px-2 py-1">Sign out</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto space-y-6">
+  <main class="max-w-3xl mx-auto p-4 space-y-6">
 
-    <!-- Upload card -->
-    <section class="card">
-      <div class="upload-area">
+    <!-- Upload / Create Post (UI only; logic in assets/js/upload.js) -->
+    <section class="card" aria-labelledby="create-post-heading">
+      <div class="flex items-start gap-4">
         <div style="flex:1">
-          <label class="block text-sm font-semibold mb-1">Create post</label>
-          <input id="imageInput" type="file" accept="image/*" class="mb-2" />
-          <input id="captionInput" type="text" placeholder="Write a caption..." class="w-full border rounded px-3 py-2 mb-2" />
-          <div class="controls">
-            <button id="uploadBtn" class="bg-violet-600 text-white px-4 py-2 rounded">Upload (compress + encrypt)</button>
+          <h2 id="create-post-heading" class="font-semibold mb-2">Create post</h2>
+
+          <div class="mb-2">
+            <input id="imageInput" type="file" accept="image/*,video/*" class="w-full" />
+          </div>
+
+          <div class="mb-2">
+            <input id="captionInput" type="text" placeholder="Write a caption..." class="w-full border rounded px-3 py-2" />
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="uploadBtn" class="bg-violet-600 text-white px-4 py-2 rounded inline-flex items-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+            </button>
             <div id="uploadStatus" class="text-sm text-gray-600"></div>
           </div>
-          <div class="text-xs text-gray-500 mt-2">Images are converted to WebP with aggressive compression and encrypted client-side (AES-GCM).</div>
+
+          <p class="text-xs text-gray-500 mt-2">Images are compressed to WebP (high compression) and encrypted client-side (AES-GCM). The app automatically decrypts for viewers.</p>
         </div>
+
         <div style="width:160px">
           <div id="previewWrap" class="card" style="height:120px;display:flex;align-items:center;justify-content:center">
             <img id="preview" src="" alt="" style="max-width:100%;max-height:100%;display:none;border-radius:8px" />
@@ -57,17 +81,49 @@
       </div>
     </section>
 
-    <!-- Feed -->
+    <!-- Stories (populated by assets/js/stories.js) -->
+    <section id="storiesContainer" class="card overflow-x-auto whitespace-nowrap py-3">
+      <!-- stories rendered here -->
+    </section>
+
+    <!-- Feed (populated by assets/js/index.js) -->
     <section id="feedRoot" class="space-y-4">
       <div id="loading" class="text-center text-gray-500 py-8">Loading feed…</div>
+      <!-- posts inserted here -->
     </section>
 
   </main>
 
-  <!-- Shared JS modules -->
+  <!-- bottom navigation (shared look) -->
+  <nav class="fixed bottom-4 inset-x-0 pointer-events-none">
+    <div class="max-w-3xl mx-auto px-4 pointer-events-auto">
+      <div class="bg-white rounded-full shadow px-6 py-2 flex items-center justify-between">
+        <a href="index.html" class="text-violet-600"><i class="fa-solid fa-house"></i></a>
+        <a href="explore.html" class="text-gray-500"><i class="fa-regular fa-compass"></i></a>
+        <a href="upload.html" class="text-gray-500"><i class="fa-regular fa-square-plus"></i></a>
+        <a href="messages.html" class="text-gray-500"><i class="fa-regular fa-comment-dots"></i></a>
+        <a href="profile.html" class="text-gray-500"><i class="fa-regular fa-user"></i></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CENTRALIZED JS (all logic lives here) -->
+  <!-- firebase-init.js must export app, auth, db, storage (we created this earlier) -->
   <script type="module" src="assets/js/firebase-init.js"></script>
+
+  <!-- auth helpers (signIn/signOut/onAuthStateChanged) -->
+  <script type="module" src="assets/js/auth.js"></script>
+
+  <!-- crypto helpers (compress + AES-GCM encrypt/decrypt) -->
   <script type="module" src="assets/js/crypto-utils.js"></script>
+
+  <!-- upload flow (compress -> encrypt -> storage -> metadata DB) -->
   <script type="module" src="assets/js/upload.js"></script>
+
+  <!-- centralized social actions (likes/comments/follow/save) -->
+  <script type="module" src="assets/js/social-actions.js"></script>
+
+  <!-- feed + page-specific wiring (renders posts, hooks UI to centralized APIs) -->
   <script type="module" src="assets/js/index.js"></script>
 
 </body>
