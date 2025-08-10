@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rivo Feed</title>
-
-  <!-- Theme CSS -->
-  <link rel="stylesheet" href="assets/css/theme.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo - Home</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -19,32 +17,75 @@
     </div>
   </header>
 
-  <!-- Stories Section -->
-  <section class="stories" id="stories-container">
-    <!-- Stories will be loaded dynamically -->
-  </section>
+  <!-- Stories -->
+  <section class="stories" id="stories"></section>
 
-  <!-- Feed Section -->
-  <main class="feed" id="feed-container">
-    <!-- Posts will be loaded dynamically from Firebase -->
-  </main>
+  <!-- Main Feed -->
+  <main class="feed" id="feed"></main>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Nav -->
   <nav class="bottom-nav">
-    <i class="fa-solid fa-house"></i>
-    <i class="fa-regular fa-compass"></i>
-    <i class="fa-regular fa-square-plus"></i>
-    <i class="fa-regular fa-comment-dots"></i>
-    <i class="fa-regular fa-user"></i>
+    <a href="index.html"><i class="fa-solid fa-house"></i></a>
+    <a href="explore.html"><i class="fa-regular fa-compass"></i></a>
+    <a href="upload.html"><i class="fa-regular fa-square-plus"></i></a>
+    <a href="messages.html"><i class="fa-regular fa-comment-dots"></i></a>
+    <a href="account.html"><i class="fa-regular fa-user"></i></a>
   </nav>
 
-  <!-- Firebase Init -->
+  <!-- Shared JS -->
   <script src="assets/js/firebase-init.js"></script>
-
-  <!-- Shared Social Actions -->
   <script src="assets/js/social-actions.js"></script>
 
-  <!-- Page-specific Logic -->
-  <script src="assets/js/feed.js"></script>
+  <!-- Page Specific JS -->
+  <script>
+    const storiesContainer = document.getElementById('stories');
+    const feedContainer = document.getElementById('feed');
+
+    // Load Stories
+    firebase.database().ref('stories').on('value', snapshot => {
+      storiesContainer.innerHTML = '';
+      snapshot.forEach(storySnap => {
+        const story = storySnap.val();
+        storiesContainer.innerHTML += `
+          <div class="story">
+            <img src="${story.image}" alt="${story.username}">
+            <span>${story.username}</span>
+          </div>
+        `;
+      });
+    });
+
+    // Load Posts
+    firebase.database().ref('posts').on('value', snapshot => {
+      feedContainer.innerHTML = '';
+      snapshot.forEach(postSnap => {
+        const post = postSnap.val();
+        feedContainer.innerHTML += `
+          <article class="post" data-id="${postSnap.key}">
+            <div class="post-header">
+              <img src="${post.userAvatar}" class="avatar">
+              <span class="username">${post.username}</span>
+            </div>
+            <img src="${post.image}" class="post-img">
+            <div class="post-actions">
+              <i class="fa-regular fa-heart like-btn" data-post="${postSnap.key}"></i>
+              <i class="fa-regular fa-comment comment-btn" data-post="${postSnap.key}"></i>
+              <i class="fa-regular fa-paper-plane"></i>
+            </div>
+            <div class="post-likes">
+              Liked by <b>${post.likedBy || 'No one yet'}</b> and <b>${post.likes || 0} others</b>
+            </div>
+            <div class="post-caption">
+              <b>${post.username}</b> ${post.caption || ''}
+            </div>
+          </article>
+        `;
+      });
+
+      // Attach actions after posts are rendered
+      initSocialActions();
+    });
+  </script>
+
 </body>
 </html>
