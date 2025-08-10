@@ -1,69 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Messages</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <title>Rivo - Messages</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #fff;
-      font-family: 'Inter', sans-serif;
-    }
-    .fade-in { animation: fadeIn 0.4s ease-in-out; }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    .violet-btn { color: #7c3aed; }
-    .violet-outline { border: 1px solid #7c3aed; }
-  </style>
 </head>
-<body class="flex flex-col h-screen">
-
-  <!-- Header -->
-  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 fade-in">
-    <h1 class="text-lg font-bold">Messages</h1>
-    <button class="violet-btn text-2xl"><i class="fa-regular fa-pen-to-square"></i></button>
-  </div>
-
-  <!-- Search Bar -->
-  <div class="px-4 py-2">
-    <input type="text" placeholder="Search" class="w-full p-2 rounded-full violet-outline focus:outline-none focus:border-violet-600"/>
-  </div>
-
-  <!-- Conversation List -->
-  <div class="flex-1 overflow-y-auto fade-in">
-    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
-      <img src="https://i.pravatar.cc/50?u=1" class="w-12 h-12 rounded-full"/>
-      <div class="flex-1">
-        <p class="font-semibold">john_doe</p>
-        <p class="text-gray-500 text-sm truncate">Hey! How’s it going?</p>
+<body class="bg-gray-50 min-h-screen">
+  <header class="bg-violet-600 text-white p-4 shadow">
+    <div class="max-w-3xl mx-auto flex justify-between items-center">
+      <h1 class="text-lg font-semibold">Messages</h1>
+      <div>
+        <button id="signInBtn" class="bg-white text-violet-600 px-3 py-1 rounded">Sign in</button>
+        <button id="signOutBtn" class="hidden bg-red-500 text-white px-3 py-1 rounded">Sign out</button>
       </div>
-      <span class="text-xs text-gray-400">2m</span>
-    </a>
+    </div>
+  </header>
 
-    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
-      <img src="https://i.pravatar.cc/50?u=2" class="w-12 h-12 rounded-full"/>
-      <div class="flex-1">
-        <p class="font-semibold">emma_rose</p>
-        <p class="text-gray-500 text-sm truncate">Let’s meet tomorrow!</p>
-      </div>
-      <span class="text-xs text-gray-400">5m</span>
-    </a>
+  <main class="max-w-3xl mx-auto p-4">
+    <div id="chatList" class="space-y-3">
+      <!-- Conversations will load here -->
+    </div>
+  </main>
 
-    <a href="chat.html" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
-      <img src="https://i.pravatar.cc/50?u=3" class="w-12 h-12 rounded-full"/>
-      <div class="flex-1">
-        <p class="font-semibold">travel_buddy</p>
-        <p class="text-gray-500 text-sm truncate">The trip was amazing 😍</p>
-      </div>
-      <span class="text-xs text-gray-400">1h</span>
-    </a>
-  </div>
+  <script type="module">
+    import '/assets/js/realtime-app.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-  <!-- Floating New Message Button -->
-  <button class="fixed bottom-5 right-5 bg-violet-600 text-white p-4 rounded-full shadow-lg hover:bg-violet-700 transition">
-    <i class="fa-solid fa-plus"></i>
-  </button>
+    const auth = getAuth();
+    const db = getDatabase();
 
+    const signInBtn = document.getElementById('signInBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const chatList = document.getElementById('chatList');
+
+    // Auth state
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        signInBtn.classList.add('hidden');
+        signOutBtn.classList.remove('hidden');
+        loadChats(user.uid);
+      } else {
+        signInBtn.classList.remove('hidden');
+        signOutBtn.classList.add('hidden');
+        chatList.innerHTML = `<p class="text-gray-500">Sign in to see your messages.</p>`;
+      }
+      window.dispatchEvent(new CustomEvent('rivo:authChange', { detail: user }));
+    });
+
+    signInBtn.addEventListener('click', () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider).catch(console.error);
+    });
+
+    signOutBtn.addEventListener('click', () => {
+      signOut(auth).catch(console.error);
+    });
+
+    function loadChats(uid) {
+      onValue(ref(db, `userChats/${uid}`), snap => {
+        if (!snap.exists()) {
+          chatList.innerHTML = `<p class="text-gray-500">No conversations yet.</p>`;
+          return;
+        }
+        const chats = snap.val();
+        chatList.innerHTML = '';
+        Object.keys(chats).forEach(chatId => {
+          const chat = chats[chatId];
+          const otherUser = chat.participants.find(id => id !== uid);
+          chatList.innerHTML += `
+            <div class="p-4 bg-white rounded shadow flex justify-between items-center">
+              <div>
+                <p class="font-semibold">${chat.lastMessageSender || 'User'}</p>
+                <p class="text-sm text-gray-500 truncate w-48">${chat.lastMessage || ''}</p>
+              </div>
+              <a href="chat.html?chatId=${chatId}" class="bg-violet-600 text-white px-3 py-1 rounded">Open</a>
+            </div>
+          `;
+        });
+      });
+    }
+  </script>
 </body>
 </html>
