@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Details</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    video, img {
+      max-height: 60vh;
+      object-fit: cover;
+    }
+    .comment-bar {
+      background: white;
+      border-top: 1px solid #eee;
+    }
+    .violet-btn {
+      color: #7c3aed;
+    }
+    .violet-outline {
+      border: 1px solid #7c3aed;
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen">
+
+  <!-- Media -->
+  <div class="w-full fade-in relative">
+    <!-- Example video -->
+    <video id="postVideo" class="w-full" autoplay muted loop playsinline>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+    <!-- Example image (uncomment if needed) -->
+    <!-- <img src="https://source.unsplash.com/random/800x600" class="w-full" alt="Post"/> -->
+  </div>
+
+  <!-- Actions -->
+  <div class="flex items-center gap-4 px-4 py-3 border-b border-gray-200">
+    <button class="violet-btn text-2xl"><i class="fa-regular fa-heart"></i></button>
+    <button class="violet-btn text-2xl"><i class="fa-regular fa-comment"></i></button>
+    <button class="violet-btn text-2xl"><i class="fa-solid fa-share"></i></button>
+  </div>
+
+  <!-- Caption -->
+  <div class="px-4 py-3">
+    <p class="font-semibold">username</p>
+    <p class="text-gray-700">This is a premium sample caption with <span class="text-violet-600">#hashtags</span> and <span class="text-violet-600">@mentions</span>.</p>
+  </div>
+
+  <!-- Comments -->
+  <div class="flex-1 overflow-y-auto px-4 space-y-4">
+    <div class="flex items-start gap-3">
+      <img src="https://i.pravatar.cc/40" class="rounded-full w-10 h-10"/>
+      <p><span class="font-semibold">user1</span> This is awesome 🔥</p>
+    </div>
+    <div class="flex items-start gap-3">
+      <img src="https://i.pravatar.cc/41" class="rounded-full w-10 h-10"/>
+      <p><span class="font-semibold">user2</span> Love the vibes 💜</p>
+    </div>
+    <div class="flex items-start gap-3">
+      <img src="https://i.pravatar.cc/42" class="rounded-full w-10 h-10"/>
+      <p><span class="font-semibold">user3</span> Great shot 📸</p>
+    </div>
+  </div>
+
+  <!-- Comment Bar -->
+  <div class="comment-bar px-4 py-2 flex items-center gap-3">
+    <input type="text" placeholder="Add a comment..." class="flex-1 p-2 rounded-full violet-outline focus:outline-none focus:border-violet-600"/>
+    <button class="violet-btn text-xl"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+
+  <script>
+    const video = document.getElementById('postVideo');
+    if (video) {
+      video.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
