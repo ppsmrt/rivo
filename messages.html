@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Messages - Rivo</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    .chat-hover {
+      transition: background-color 0.3s ease;
+    }
+    .chat-hover:hover {
+      background-color: #f5f3ff;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between p-4 border-b border-gray-200">
+    <i class="fas fa-arrow-left text-xl text-gray-700"></i>
+    <h1 class="font-bold text-lg">Messages</h1>
+    <i class="fas fa-edit text-xl text-violet-500"></i>
+  </header>
+
+  <!-- Search -->
+  <div class="p-4">
+    <div class="flex items-center bg-gray-100 rounded-full px-3 py-2">
+      <i class="fas fa-search text-gray-500"></i>
+      <input type="text" placeholder="Search" class="bg-transparent outline-none flex-1 ml-2 text-sm">
+    </div>
+  </div>
+
+  <!-- Chats List -->
+  <section class="flex-1 overflow-y-auto">
+    <!-- Single Chat -->
+    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
+      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
+      <div class="ml-3 flex-1">
+        <div class="flex justify-between">
+          <h2 class="font-semibold">John Doe</h2>
+          <span class="text-xs text-gray-500">2m</span>
+        </div>
+        <p class="text-sm text-gray-500 truncate">Hey, how are you doing?</p>
+      </div>
+    </a>
+
+    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
+      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
+      <div class="ml-3 flex-1">
+        <div class="flex justify-between">
+          <h2 class="font-semibold">Jane Smith</h2>
+          <span class="text-xs text-gray-500">15m</span>
+        </div>
+        <p class="text-sm text-gray-500 truncate">Let’s meet tomorrow!</p>
+      </div>
+    </a>
+
+    <a href="chat.html" class="flex items-center px-4 py-3 chat-hover">
+      <img src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-violet-500">
+      <div class="ml-3 flex-1">
+        <div class="flex justify-between">
+          <h2 class="font-semibold">Michael Lee</h2>
+          <span class="text-xs text-gray-500">1h</span>
+        </div>
+        <p class="text-sm text-gray-500 truncate">Thanks for your help!</p>
+      </div>
+    </a>
+  </section>
+
+</body>
+</html>
