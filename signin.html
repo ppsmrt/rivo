@@ -19,12 +19,12 @@
     <form class="auth-form">
       <div class="input-group">
         <i class="fa fa-envelope"></i>
-        <input type="email" placeholder="Email" required>
+        <input id="signin-email" type="email" placeholder="Email" required>
       </div>
 
       <div class="input-group">
         <i class="fa fa-lock"></i>
-        <input type="password" placeholder="Password" required>
+        <input id="signin-password" type="password" placeholder="Password" required>
       </div>
 
       <button type="submit" class="btn-primary">
@@ -32,15 +32,9 @@
       </button>
     </form>
 
-    <!-- Social Login -->
-    <div class="social-login">
-      <button class="social-btn google"><i class="fab fa-google"></i></button>
-      <button class="social-btn facebook"><i class="fab fa-facebook-f"></i></button>
-    </div>
-
     <p class="form-footer">Don't have an account? <a href="signup.html">Sign Up</a></p>
   </main>
 
-  <script src="assets/js/app.js"></script>
+  <script src="assets/js/auth.js" type="module"></script>
 </body>
 </html>
