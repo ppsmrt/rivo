@@ -1,431 +1,59 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Chat (Premium)</title>
-
-  <!-- Tailwind (optional) + FA icons -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <!-- Central theme -->
-  <link rel="stylesheet" href="/assets/css/theme.css">
-
-  <style>
-    /* Chat-specific polished styles */
-    .bubble.out { background: linear-gradient(135deg,#ff7eb3,#845ec2); box-shadow: 0 8px 24px rgba(124,58,237,0.18); }
-    .bubble.in { background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,255,0.95)); border: 1px solid rgba(15,23,42,0.04); }
-    .msg .reactions { display:flex; gap:6px; margin-top:8px; }
-    .reaction-pill { padding:4px 8px; border-radius:999px; background:rgba(0,0,0,0.06); font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; }
-    .heart-anim-large{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; font-size:4rem; color:rgba(255,255,255,0.95); opacity:0; transform:scale(.8); transition: transform .35s cubic-bezier(.2,.9,.2,1), opacity .35s ease; }
-    .heart-anim-large.show{ opacity:1; transform:scale(1.05); }
-    .reaction-picker { position: absolute; bottom:72px; left:50%; transform:translateX(-50%); display:flex; gap:8px; padding:8px; border-radius:999px; background:rgba(255,255,255,0.92); box-shadow:0 8px 24px rgba(12,15,25,0.08); }
-    .reaction-btn { padding:6px; border-radius:999px; font-size:1.1rem; cursor:pointer; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo Chat - Direct Messages</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="antialiased">
+<body>
 
-  <!-- ui.js injects header + footer (glass) -->
-  <script type="module"> import '/assets/js/ui.js'; </script>
-
-  <main class="chat-shell page-wrapper">
-    <div class="chat-column max-w-3xl mx-auto">
-      <div class="conversation">
-        <!-- conversation header -->
-        <div class="p-4 flex items-center gap-3 border-b">
-          <div class="story-ring"><img id="roomAvatar" src="https://i.pravatar.cc/64?u=room" alt="room"></div>
-          <div>
-            <div class="font-semibold" id="conv-title">General</div>
-            <div class="text-muted text-sm" id="conv-sub">Public room · Live</div>
-          </div>
-          <div class="ml-auto text-sm text-muted" id="onlineCount">— online</div>
-        </div>
-
-        <!-- messages container -->
-        <div id="messages" class="messages" role="log" aria-live="polite"></div>
-
-        <!-- heart overlay (double-tap) -->
-        <div id="heartOverlay" class="heart-anim-large" aria-hidden="true">❤</div>
-
-        <!-- input -->
-        <div class="input-bar">
-          <div class="input-field">
-            <input id="messageInput" type="text" placeholder="Write a message..." aria-label="Message input" autocomplete="off" />
-          </div>
-          <button id="sendBtn" class="send-btn" aria-label="Send">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
-        </div>
+<main id="chat-main">
+  
+  <!-- Chat List -->
+  <section id="chat-list">
+    <h2 class="section-title">Chats</h2>
+    <div class="chat-user" data-uid="user1">
+      <img src="assets/icons/user1.png" class="avatar">
+      <div class="chat-info">
+        <span class="username">DemoUser1</span>
+        <p class="last-message">Hey, how are you?</p>
       </div>
     </div>
-  </main>
+    <div class="chat-user" data-uid="user2">
+      <img src="assets/icons/user2.png" class="avatar">
+      <div class="chat-info">
+        <span class="username">DemoUser2</span>
+        <p class="last-message">Let’s catch up!</p>
+      </div>
+    </div>
+  </section>
 
-  <!-- reaction picker template (hidden until used) -->
-  <div id="reactionPicker" class="reaction-picker" style="display:none;">
-    <button class="reaction-btn">👍</button>
-    <button class="reaction-btn">❤️</button>
-    <button class="reaction-btn">😂</button>
-    <button class="reaction-btn">🔥</button>
-    <button class="reaction-btn">👏</button>
-  </div>
+  <!-- Chat Window -->
+  <section id="chat-window" class="hidden">
+    <header class="chat-header">
+      <button id="backToList">←</button>
+      <img id="chatAvatar" src="" class="avatar">
+      <span id="chatUsername" class="username"></span>
+    </header>
+    <div id="messages" class="messages"></div>
+    <div class="message-input">
+      <input type="text" id="messageText" placeholder="Type a message...">
+      <button id="sendMessage">➤</button>
+    </div>
+  </section>
 
-  <!-- Shared JS: animations + firebase + ui -->
-  <script type="module">
-  import { animateIn, pulse, scrollToBottom } from '/assets/js/animations.js';
-  import { db } from '/assets/js/firebase-init.js';
-  import { ref, push, onChildAdded, onValue, set, remove, update, get, child } 
-    from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js';
+</main>
 
-  // DOM
-  const messagesEl = document.getElementById('messages');
-  const inputEl = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const heartOverlay = document.getElementById('heartOverlay');
-  const reactionPicker = document.getElementById('reactionPicker');
-  const onlineCountEl = document.getElementById('onlineCount');
+<!-- Upload & Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="index.html"><img src="assets/icons/home.png"><span>Feed</span></a>
+  <a href="chat.html"><img src="assets/icons/chat.png"><span>Chat</span></a>
+  <a href="profile.html"><img src="assets/icons/user.png"><span>Profile</span></a>
+</nav>
 
-  // chat id
-  const params = new URLSearchParams(location.search);
-  const chatId = params.get('chatId') || 'general';
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/chat.js"></script>
 
-  // current user from localStorage (your sign-in saves this)
-  let currentUser = null;
-  try { currentUser = JSON.parse(localStorage.getItem('user')); } catch(e) { currentUser = null; }
-
-  // require auth for sending
-  function requireAuth() {
-    if (!currentUser) {
-      // redirect to signin
-      window.location.href = 'signin.html';
-      return false;
-    }
-    return true;
-  }
-
-  // helper: render message node (returns element)
-  function createMessageNode(id, data) {
-    const isMe = currentUser && (String(data.senderId) === String(currentUser.id || currentUser.uid || currentUser.uid?.toString()));
-
-    const row = document.createElement('div');
-    row.className = `msg ${isMe ? 'outgoing' : 'incoming'}`;
-    row.dataset.msgId = id;
-
-    if (!isMe) {
-      const av = document.createElement('img');
-      av.className = 'avatar';
-      av.src = data.senderAvatar || `https://i.pravatar.cc/40?u=${data.senderId||'anon'}`;
-      av.alt = data.senderName || 'User';
-      row.appendChild(av);
-    }
-
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-
-    const bubble = document.createElement('div');
-    bubble.className = `bubble ${isMe ? 'out' : 'in'}`;
-    bubble.innerHTML = `<div class="message-text">${escapeHtml(data.text || '')}</div>`;
-
-    // timestamp + tiny meta
-    const meta = document.createElement('div');
-    meta.className = 'msg-meta';
-    meta.textContent = timeAgo(data.timestamp || Date.now());
-
-    // reactions container (populated below)
-    const reactionsWrap = document.createElement('div');
-    reactionsWrap.className = 'reactions';
-
-    wrapper.appendChild(bubble);
-    wrapper.appendChild(meta);
-    wrapper.appendChild(reactionsWrap);
-
-    row.appendChild(wrapper);
-
-    if (isMe) {
-      const av = document.createElement('img');
-      av.className = 'avatar';
-      av.src = currentUser.photoURL || `https://i.pravatar.cc/40?u=${currentUser.id||currentUser.uid||'me'}`;
-      row.appendChild(av);
-    }
-
-    // attach event handlers: double-tap to like & long-press for reactions
-    attachGestureHandlers(bubble, id);
-
-    // return composite
-    return { row, reactionsWrap, bubble };
-  }
-
-  // store mapping of id->node for reaction updates
-  const nodeMap = new Map();
-
-  // listen for new messages (child_added loads existing then new)
-  const msgsRef = ref(db, `messages/${chatId}`);
-  onChildAdded(msgsRef, snap => {
-    const id = snap.key;
-    const data = snap.val();
-    if (!data) return;
-    const { row, reactionsWrap, bubble } = createMessageNode(id, data);
-    messagesEl.appendChild(row);
-    nodeMap.set(id, { row, reactionsWrap, bubble });
-    animateIn(row);
-    // load reactions for this message
-    subscribeReactions(id);
-    scrollToBottom(messagesEl);
-  });
-
-  // subscribe reactions subnode
-  function subscribeReactions(msgId) {
-    const rRef = ref(db, `messages/${chatId}/${msgId}/reactions`);
-    onValue(rRef, snap => {
-      const obj = snap.val() || {};
-      const node = nodeMap.get(msgId);
-      if (!node) return;
-      const wrap = node.reactionsWrap;
-      wrap.innerHTML = ''; // reset
-      // aggregate counts
-      const counts = {};
-      Object.values(obj).forEach(r => { counts[r] = (counts[r]||0)+1; });
-      Object.entries(counts).forEach(([emoji, c]) => {
-        const pill = document.createElement('div');
-        pill.className = 'reaction-pill';
-        pill.innerHTML = `<span>${emoji}</span><span class="text-muted" style="margin-left:6px">${c}</span>`;
-        wrap.appendChild(pill);
-      });
-    });
-  }
-
-  // gesture handlers (double-tap, long-press)
-  function attachGestureHandlers(elem, msgId) {
-    let lastTap = 0;
-    let longpressTimer = null;
-
-    elem.addEventListener('click', (e) => {
-      const now = Date.now();
-      if (now - lastTap < 300) {
-        // double-tap -> heart like
-        handleLike(msgId);
-        showHeartAnimAt(e.clientX, e.clientY);
-      }
-      lastTap = now;
-    });
-
-    // long-press (for desktop use right-click fallback)
-    elem.addEventListener('pointerdown', (e) => {
-      longpressTimer = setTimeout(() => {
-        openReactionPicker(msgId, e.clientX, e.clientY);
-      }, 550);
-    });
-    elem.addEventListener('pointerup', () => { clearTimeout(longpressTimer); });
-    elem.addEventListener('pointerleave', () => { clearTimeout(longpressTimer); });
-    elem.addEventListener('contextmenu', (ev) => {
-      ev.preventDefault();
-      openReactionPicker(msgId, ev.clientX, ev.clientY);
-    });
-  }
-
-  // show heart animation overlay
-  function showHeartAnimAt(x,y) {
-    heartOverlay.classList.add('show');
-    setTimeout(()=> heartOverlay.classList.remove('show'), 520);
-  }
-
-  // handle like (optimistic)
-  async function handleLike(msgId) {
-    if (!requireAuth()) return;
-    const uid = currentUser.id || currentUser.uid || currentUser.uid?.toString();
-    const reactionRef = ref(db, `messages/${chatId}/${msgId}/reactions/${uid}`);
-    try {
-      // toggle like heart (emoji ❤️)
-      const snap = await get(reactionRef);
-      if (snap.exists()) {
-        // remove reaction (toggle off)
-        await remove(reactionRef);
-      } else {
-        await set(reactionRef, '❤️');
-      }
-    } catch (err) {
-      console.error('like error', err);
-    }
-  }
-
-  // open reaction picker (positioning)
-  function openReactionPicker(msgId, clientX, clientY) {
-    // position near clientX/clientY
-    reactionPicker.style.display = 'flex';
-    reactionPicker.style.left = `${Math.min(window.innerWidth - 120, Math.max(80, clientX))}px`;
-    reactionPicker.style.bottom = `calc(64px + env(safe-area-inset-bottom,12px))`;
-    // attach one-time handlers for selection
-    const onSelect = async (ev) => {
-      const emoji = ev.target.textContent.trim();
-      if (!emoji) return;
-      // write reaction under user id
-      if (!requireAuth()) return;
-      const uid = currentUser.id || currentUser.uid || currentUser.uid?.toString();
-      const reactionRef = ref(db, `messages/${chatId}/${msgId}/reactions/${uid}`);
-      try {
-        await set(reactionRef, emoji);
-      } catch (err) { console.error('add reaction', err); }
-      hideReactionPicker();
-    };
-    // wire each button
-    reactionPicker.querySelectorAll('.reaction-btn').forEach(b => {
-      b.onclick = onSelect;
-    });
-    // hide when tapping outside
-    const outside = (ev)=> { if (!reactionPicker.contains(ev.target)) hideReactionPicker(); };
-    window.addEventListener('pointerdown', outside, { once:true });
-  }
-  function hideReactionPicker(){ reactionPicker.style.display='none'; }
-
-  // send message (optimistic)
-  async function sendMessage(text) {
-    if (!requireAuth()) return;
-    text = (text||'').trim();
-    if (!text) return;
-    const payload = {
-      text,
-      senderId: currentUser.id || currentUser.uid || currentUser.uid?.toString(),
-      senderName: currentUser.name || currentUser.username || currentUser.displayName || currentUser.email || 'You',
-      senderAvatar: currentUser.photoURL || `https://i.pravatar.cc/40?u=${currentUser.id||'me'}`,
-      timestamp: Date.now()
-    };
-    try {
-      // optimistic UI: show immediately with a temp node (id = optimistic-<ts>)
-      const tempId = `optimistic-${Date.now()}`;
-      const { row } = createMessageNode(tempId, payload);
-      row.classList.add('temp');
-      messagesEl.appendChild(row);
-      animateIn(row);
-      scrollToBottom(messagesEl);
-
-      // push to DB
-      const newRef = await push(ref(db, `messages/${chatId}`), payload);
-
-      // remove temp node (it will be re-added by onChildAdded) — keep it for short time to reduce flicker
-      setTimeout(()=> {
-        const t = document.querySelector(`[data-msg-id="${tempId}"]`);
-        if (t) t.remove();
-      }, 700);
-
-      inputEl.value = '';
-    } catch (err) {
-      console.error('send error', err);
-      alert('Failed to send message.');
-    }
-  }
-
-  // typing presence (set true while typing; remove after idle)
-  let typingTimeout = null;
-  function setTyping(on){
-    if (!currentUser) return;
-    const uid = currentUser.id || currentUser.uid || currentUser.uid?.toString();
-    const tRef = ref(db, `typing/${chatId}/${uid}`);
-    if (on) {
-      set(tRef, true).catch(()=>{});
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(()=> { remove(tRef).catch(()=>{}); }, 3000);
-    } else {
-      remove(tRef).catch(()=>{});
-    }
-  }
-
-  // show online count / typing
-  const typingRef = ref(db, `typing/${chatId}`);
-  onValue(typingRef, snap => {
-    const val = snap.val() || {};
-    const uids = Object.keys(val);
-    const others = uids.filter(id => String(id) !== String(currentUser?.id || currentUser?.uid));
-    if (others.length > 0) {
-      onlineCountEl.textContent = `${others.length} typing…`;
-    } else {
-      onlineCountEl.textContent = `Live`;
-    }
-  });
-
-  // wire input events
-  inputEl.addEventListener('input', (e)=> {
-    setTyping(!!inputEl.value);
-  });
-  inputEl.addEventListener('keydown', (e)=> {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); }
-  });
-  sendBtn.addEventListener('click', ()=> sendMessage(inputEl.value));
-
-  // helper utils
-  function escapeHtml(s){ if (!s) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
-  function timeAgo(ms){
-    const seconds = Math.floor((Date.now() - ms)/1000);
-    if (seconds < 60) return `${seconds}s`; const minutes = Math.floor(seconds/60);
-    if (minutes < 60) return `${minutes}m`; const hours = Math.floor(minutes/60);
-    if (hours < 24) return `${hours}h`; return `${Math.floor(hours/24)}d`;
-  }
-
-  // load initial reactions for all existing messages (helper called in onChildAdded)
-  function createMessageNode(id, data) {
-    const node = createMessageNodeDOM(id, data);
-    return node;
-  }
-
-  // small DOM builder extracted (to avoid duplication inside onChildAdded)
-  function createMessageNodeDOM(id, data) {
-    const isMe = currentUser && (String(data.senderId) === String(currentUser.id || currentUser.uid || currentUser.uid?.toString()));
-    const row = document.createElement('div');
-    row.className = `msg ${isMe ? 'outgoing' : 'incoming'}`;
-    row.dataset.msgId = id;
-
-    if (!isMe) {
-      const av = document.createElement('img');
-      av.className = 'avatar';
-      av.src = data.senderAvatar || `https://i.pravatar.cc/40?u=${data.senderId||'anon'}`;
-      row.appendChild(av);
-    }
-
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-
-    const bubble = document.createElement('div');
-    bubble.className = `bubble ${isMe ? 'out' : 'in'}`;
-    bubble.innerHTML = `<div class="message-text">${escapeHtml(data.text||'')}</div>`;
-
-    const meta = document.createElement('div');
-    meta.className = 'msg-meta';
-    meta.textContent = timeAgo(data.timestamp || Date.now());
-
-    const reactionsWrap = document.createElement('div');
-    reactionsWrap.className = 'reactions';
-
-    wrapper.appendChild(bubble);
-    wrapper.appendChild(meta);
-    wrapper.appendChild(reactionsWrap);
-
-    row.appendChild(wrapper);
-
-    if (isMe) {
-      const av = document.createElement('img');
-      av.className = 'avatar';
-      av.src = currentUser.photoURL || `https://i.pravatar.cc/40?u=${currentUser.id||currentUser.uid||'me'}`;
-      row.appendChild(av);
-    }
-
-    attachGestureHandlers(bubble, id);
-    nodeMap.set(id, { row, reactionsWrap, bubble });
-
-    return { row, reactionsWrap, bubble };
-  }
-
-  // init (scroll to bottom if messages already in DOM)
-  (function init(){
-    // small hint: allow viewing without auth but require sign-in to send
-    if (!currentUser) {
-      // show limited UI; still list messages
-      console.warn('no currentUser in localStorage; sending disabled until sign-in');
-    }
-    // focus input on load
-    setTimeout(()=> inputEl.focus(), 600);
-    // make sure messages scroll after initial content
-    setTimeout(()=> scrollToBottom(messagesEl), 800);
-  })();
-
-  </script>
 </body>
 </html>
