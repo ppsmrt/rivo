@@ -1,395 +1,107 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Home (Premium)</title>
-
-  <!-- Tailwind utilities (optional but keeps markup concise) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome (icons) -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <!-- Central theme: glass, tokens, chat + feed styles (must exist in repo) -->
-  <link rel="stylesheet" href="assets/css/theme.css" />
-
-  <style>
-    /* Page-level polished overrides to ensure immediate premium look even if theme tokens differ */
-    :root {
-      --violet: #7c3aed;
-      --glass-bg: rgba(255,255,255,0.55);
-    }
-
-    html,body { height: 100%; }
-    body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);
-      background-size: 400% 400%;
-      animation: gradientShift 18s ease infinite;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      margin:0;
-      color: #0f172a;
-    }
-    @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-    /* header/footer glass */
-    header.app-header, footer.app-footer {
-      position: sticky;
-      left:0; right:0; z-index:60;
-      display:flex; align-items:center; gap:12px;
-      padding: 14px 18px;
-      -webkit-backdrop-filter: blur(12px) saturate(140%);
-      backdrop-filter: blur(12px) saturate(140%);
-      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.45));
-      border-bottom: 1px solid rgba(255,255,255,0.45);
-      box-shadow: 0 6px 18px rgba(12,15,25,0.06);
-    }
-    footer.app-footer {
-      position: fixed;
-      bottom: env(safe-area-inset-bottom,12px);
-      left:0; right:0;
-      padding: 12px 18px calc(env(safe-area-inset-bottom,12px) + 12px);
-      border-top: 1px solid rgba(255,255,255,0.45);
-      justify-content:center;
-      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.50));
-    }
-
-    .brand { font-weight: 800; font-size: 1.05rem; background: linear-gradient(90deg,#ff7eb3,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color: transparent; }
-    .header-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
-
-    /* page container */
-    .page-wrap { max-width:980px; margin: 84px auto 140px; padding: 16px; }
-
-    /* Upload / create card */
-    .create-card { border-radius:14px; background: rgba(255,255,255,0.9); padding:14px; box-shadow: 0 8px 24px rgba(12,15,25,0.06); display:flex; gap:14px; align-items:flex-start; }
-
-    /* story ring */
-    .story-ring { width:72px; height:72px; border-radius:999px; padding:4px; display:inline-flex; align-items:center; justify-content:center; background: conic-gradient(#ff9a9e, #fad0c4, #fbc2eb, #a6c1ee); }
-    .story-ring img { width:100%; height:100%; border-radius:999px; padding: 3px; background:#fff; object-fit:cover; }
-
-    /* feed */
-    .feed { display:flex; flex-direction:column; gap:16px; }
-    .post-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow: 0 8px 26px rgba(12,15,25,0.06); transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s; }
-    .post-card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(12,15,25,0.12); }
-    .post-media img { width:100%; height:auto; display:block; object-fit:cover; }
-    .post-body { padding:12px; }
-    .post-meta { display:flex; align-items:center; gap:12px; }
-    .post-actions { display:flex; gap:12px; align-items:center; }
-
-    /* small badge gradient text */
-    .gradient-text {
-      background: linear-gradient(270deg,#ff7eb3,#ff758c,#ffce00,#9be15d,#00c6ff,#845ec2);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-      font-weight:700;
-    }
-
-    /* floating upload button */
-    .fab {
-      position: fixed; right:18px; bottom: 92px;
-      background: linear-gradient(135deg,#ff6b6b,#7c3aed);
-      color:#fff; width:62px; height:62px; border-radius:999px; display:flex; align-items:center; justify-content:center;
-      box-shadow: 0 12px 30px rgba(124,58,237,0.18); z-index:80; cursor:pointer;
-      transition: transform .18s;
-    }
-    .fab:active { transform: scale(.96); }
-
-    /* tiny helpers */
-    .avatar-sm { width:40px;height:40px;border-radius:999px;object-fit:cover; }
-    .muted { color: #6b7280; font-size: .92rem; }
-
-    /* gradient subtle border for cards */
-    .accent-ring { border-radius:12px; padding:6px; background: linear-gradient(90deg,#ff9a9e,#b980ff); }
-
-    /* responsive */
-    @media (max-width: 900px) {
-      .page-wrap { margin: 72px 12px 120px; padding:12px; }
-      .story-ring { width:62px; height:62px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo Chat - Feed</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- Header (glass) -->
-  <header class="app-header">
-    <div class="flex items-center gap-3">
-      <div class="brand">Rivo</div>
-      <div class="kicker muted hidden sm:block">Premium social • Feed</div>
-    </div>
-
-    <div class="header-actions">
-      <button class="icon-btn" aria-label="Search" id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
-      <button class="icon-btn" aria-label="Notifications" id="notifBtn"><i class="fa-regular fa-bell"></i></button>
-      <button class="icon-btn" aria-label="Messages" id="msgBtn"><i class="fa-regular fa-comment-dots"></i></button>
-    </div>
-  </header>
-
-  <!-- Page wrapper -->
-  <main class="page-wrap">
-
-    <!-- Create post -->
-    <section class="create-card" aria-labelledby="create-post-heading">
-      <img src="https://i.pravatar.cc/60?u=you" class="avatar-sm" alt="you">
-      <div style="flex:1">
-        <h2 id="create-post-heading" class="text-lg font-semibold">Create post</h2>
-        <p class="muted text-sm mb-2">Share a photo, quick thought, or a short video.</p>
-
-        <div class="flex gap-3">
-          <input id="imageInput" type="file" accept="image/*,video/*" class="hidden" />
-          <button id="chooseBtn" class="px-4 py-2 rounded-md border border-gray-200">Choose</button>
-
-          <input id="captionInput" type="text" placeholder="Write a caption..." class="flex-1 px-3 py-2 rounded-md border border-gray-200" />
-          <button id="uploadBtn" class="px-4 py-2 rounded-md bg-violet-600 text-white">Upload</button>
-        </div>
-
-        <p class="text-xs text-gray-500 mt-3">Images compressed client-side to WebP for smaller uploads.</p>
+  <!-- Feed -->
+  <main id="feed">
+    <!-- Demo Post 1 -->
+    <article class="post">
+      <header>
+        <img src="assets/icons/user1.png" class="avatar">
+        <span class="username">DemoUser1</span>
+      </header>
+      <img src="assets/demo/demo1.jpg" class="post-image">
+      <div class="actions">
+        <button class="like-btn">❤️</button>
+        <button class="comment-btn">💬</button>
+        <button class="share-btn">🔗</button>
       </div>
-    </section>
+      <p class="caption"><strong>DemoUser1</strong> Loving the vibes ✨</p>
+    </article>
 
-    <!-- Stories / quick actions -->
-    <section class="bg-white rounded-xl p-3 shadow-sm overflow-x-auto whitespace-nowrap">
-      <div class="flex items-center gap-4">
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=12" alt="Alex" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=13" alt="Sam" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=14" alt="Lily" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=15" alt="John" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=16" alt="Emma" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=17" alt="Mira" />
-        </div>
-        <div class="story-ring">
-          <img src="https://i.pravatar.cc/80?img=18" alt="Ravi" />
-        </div>
+    <!-- Demo Post 2 -->
+    <article class="post">
+      <header>
+        <img src="assets/icons/user2.png" class="avatar">
+        <span class="username">DemoUser2</span>
+      </header>
+      <img src="assets/demo/demo2.jpg" class="post-image">
+      <div class="actions">
+        <button class="like-btn">❤️</button>
+        <button class="comment-btn">💬</button>
+        <button class="share-btn">🔗</button>
       </div>
-    </section>
+      <p class="caption"><strong>DemoUser2</strong> Perfect sunset 🌅</p>
+    </article>
 
-    <!-- Mixed feed (Instagram style cards + Twitter compact posts + Facebook style comment previews) -->
-    <section class="feed">
+    <!-- Demo Post 3 -->
+    <article class="post">
+      <header>
+        <img src="assets/icons/user3.png" class="avatar">
+        <span class="username">DemoUser3</span>
+      </header>
+      <img src="assets/demo/demo3.jpg" class="post-image">
+      <div class="actions">
+        <button class="like-btn">❤️</button>
+        <button class="comment-btn">💬</button>
+        <button class="share-btn">🔗</button>
+      </div>
+      <p class="caption"><strong>DemoUser3</strong> Coffee first ☕</p>
+    </article>
 
-      <!-- Post 1: Insta-like big image -->
-      <article class="post-card">
-        <div class="p-3 post-meta flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <img src="https://i.pravatar.cc/40?img=10" class="avatar-sm" alt="Anbu" />
-            <div>
-              <div class="font-semibold">Anbu</div>
-              <div class="muted text-xs">2h • Chennai</div>
-            </div>
-          </div>
-          <div class="muted"><i class="fa-solid fa-ellipsis"></i></div>
-        </div>
+    <!-- Demo Post 4 -->
+    <article class="post">
+      <header>
+        <img src="assets/icons/user4.png" class="avatar">
+        <span class="username">DemoUser4</span>
+      </header>
+      <img src="assets/demo/demo4.jpg" class="post-image">
+      <div class="actions">
+        <button class="like-btn">❤️</button>
+        <button class="comment-btn">💬</button>
+        <button class="share-btn">🔗</button>
+      </div>
+      <p class="caption"><strong>DemoUser4</strong> Urban exploring 🏙️</p>
+    </article>
 
-        <div class="post-media">
-          <img src="https://picsum.photos/id/1011/900/600" alt="sunset" />
-        </div>
-
-        <div class="post-body">
-          <div class="post-actions flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <button class="like-btn text-2xl hover:text-rose-600" aria-label="Like"><i class="fa-regular fa-heart"></i></button>
-              <button class="text-2xl" aria-label="Comment"><i class="fa-regular fa-comment"></i></button>
-              <button class="text-2xl" aria-label="Share"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-            <div class="text-sm muted">120 likes</div>
-          </div>
-
-          <div class="mt-3">
-            <div><strong>Anbu</strong> Visiting the coast — loving this sunset. #ocean #sunset</div>
-            <div class="mt-2 text-sm text-gray-600">View all 8 comments</div>
-          </div>
-        </div>
-      </article>
-
-      <!-- Post 2: Twitter-like compact (text-first) -->
-      <article class="post-card p-3">
-        <div class="flex items-start gap-3">
-          <img src="https://i.pravatar.cc/40?img=11" class="avatar-sm" />
-          <div style="flex:1">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="font-semibold">travel_guru <span class="muted text-xs">@travel_guru • 1h</span></div>
-              </div>
-              <div class="muted"><i class="fa-solid fa-ellipsis"></i></div>
-            </div>
-
-            <p class="mt-2">Mountains are calling — pack your bag and go. The world is bigger than your fears. 🏔️</p>
-
-            <div class="mt-3 flex items-center justify-between">
-              <div class="flex items-center gap-4 muted">
-                <button class="like-btn text-lg"><i class="fa-regular fa-heart"></i></button>
-                <button class="text-lg"><i class="fa-regular fa-comment"></i></button>
-                <button class="text-lg"><i class="fa-solid fa-share"></i></button>
-              </div>
-              <div class="text-sm muted">312 likes</div>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- Post 3: Facebook-like card with comment preview -->
-      <article class="post-card">
-        <div class="p-3 post-meta flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <img src="https://i.pravatar.cc/40?img=12" class="avatar-sm" />
-            <div>
-              <div class="font-semibold">Meena</div>
-              <div class="muted text-xs">4h • Bangalore</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="post-body">
-          <p>Sharing a memory from the weekend — coffee and code. Who else pairs the two? ☕️💻</p>
-
-          <div class="mt-3 text-sm muted">Liked by <strong>Anna</strong> and <strong>78 others</strong></div>
-
-          <div class="mt-3 border rounded p-3 bg-gray-50">
-            <div class="text-sm"><strong>Ravi</strong> Nice capture — love that filter!</div>
-            <div class="text-sm muted mt-1">Reply · 2h</div>
-          </div>
-        </div>
-      </article>
-
-      <!-- More posts placeholder for infinite scroll demo -->
-      <div id="moreIndicator" class="text-center muted py-6">Scroll to load more…</div>
-
-    </section>
+    <!-- Demo Post 5 -->
+    <article class="post">
+      <header>
+        <img src="assets/icons/user5.png" class="avatar">
+        <span class="username">DemoUser5</span>
+      </header>
+      <img src="assets/demo/demo5.jpg" class="post-image">
+      <div class="actions">
+        <button class="like-btn">❤️</button>
+        <button class="comment-btn">💬</button>
+        <button class="share-btn">🔗</button>
+      </div>
+      <p class="caption"><strong>DemoUser5</strong> Beach day 🏖️</p>
+    </article>
   </main>
 
-  <!-- Floating action button (upload) -->
-  <button class="fab" id="fabUpload" title="New post">
-    <i class="fa-solid fa-plus"></i>
-  </button>
+  <!-- Upload Button -->
+  <div class="upload-btn">
+    <input type="file" id="imageUpload" accept="image/*" hidden>
+    <label for="imageUpload">➕</label>
+  </div>
 
-  <!-- Footer (glass) -->
-  <footer class="app-footer">
-    <nav class="flex items-center gap-8">
-      <a href="index.html" class="text-violet-600"><i class="fa-solid fa-house fa-lg"></i></a>
-      <a href="explore.html" class="text-gray-600"><i class="fa-regular fa-compass fa-lg"></i></a>
-      <a href="upload.html" class="text-white"><div class="accent-ring p-1 rounded-md"><i class="fa-regular fa-square-plus"></i></div></a>
-      <a href="messages.html" class="text-gray-600"><i class="fa-regular fa-comment-dots fa-lg"></i></a>
-      <a href="profile.html" class="text-gray-600"><i class="fa-regular fa-user fa-lg"></i></a>
-    </nav>
-  </footer>
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="index.html"><img src="assets/icons/home.svg"><span>Home</span></a>
+    <a href="chat.html"><img src="assets/icons/chat.svg"><span>Chat</span></a>
+    <a href="profile.html"><img src="assets/icons/user.svg"><span>Profile</span></a>
+  </nav>
 
-  <!-- Centralized JS: UI injector, animations, and app actions -->
-  <script type="module" src="assets/js/ui.js"></script>
-  <script type="module" src="assets/js/animations.js"></script>
-
-  <!-- App JS: wiring interactions (keeps centralized pattern) -->
-  <script>
-    // Minimal wiring: if you have an assets/js/app.js, you can remove this inline and use that centralized file.
-    // This inline block ensures the page looks & behaves premium immediately.
-    (function(){
-      // Like button toggle
-      document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const icon = btn.querySelector('i');
-          if (icon.classList.contains('fa-regular')) {
-            icon.classList.remove('fa-regular'); icon.classList.add('fa-solid');
-            icon.style.color = 'rgb(239,71,111)'; // rose-ish
-          } else {
-            icon.classList.remove('fa-solid'); icon.classList.add('fa-regular');
-            icon.style.color = '';
-          }
-        });
-      });
-
-      // Double-tap / double-click heart on large images
-      document.querySelectorAll('.post-media img').forEach(img => {
-        let lastTap = 0;
-        img.addEventListener('click', (e) => {
-          const now = Date.now();
-          if (now - lastTap < 300) {
-            // animate heart
-            const heart = document.createElement('div');
-            heart.innerHTML = '❤';
-            heart.style.position = 'absolute';
-            heart.style.left = e.offsetX + 'px';
-            heart.style.top = e.offsetY + 'px';
-            heart.style.transform = 'translate(-50%,-50%) scale(0.9)';
-            heart.style.fontSize = '48px';
-            heart.style.color = 'rgba(239,71,111,0.95)';
-            heart.style.opacity = '0';
-            heart.style.transition = 'transform .45s cubic-bezier(.2,.9,.2,1), opacity .45s';
-            img.parentElement.style.position = 'relative';
-            img.parentElement.appendChild(heart);
-            requestAnimationFrame(()=> {
-              heart.style.opacity = '1';
-              heart.style.transform = 'translate(-50%,-50%) scale(1.06)';
-            });
-            setTimeout(()=> {
-              heart.style.opacity = '0';
-              heart.style.transform = 'translate(-50%,-50%) scale(0.8)';
-            }, 480);
-            setTimeout(()=> heart.remove(), 850);
-
-            // toggle the first like button in the same post
-            const post = img.closest('.post-card');
-            const like = post.querySelector('.like-btn');
-            like && like.click();
-          }
-          lastTap = now;
-        });
-      });
-
-      // Floating FAB opens upload (demo)
-      document.getElementById('fabUpload').addEventListener('click', ()=> {
-        document.getElementById('imageInput').click();
-      });
-      document.getElementById('chooseBtn').addEventListener('click', ()=> document.getElementById('imageInput').click());
-
-      // Basic infinite-scroll demo: add more placeholder posts when near bottom
-      let loadingMore = false;
-      window.addEventListener('scroll', async () => {
-        const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 900);
-        if (nearBottom && !loadingMore) {
-          loadingMore = true;
-          document.getElementById('moreIndicator').textContent = 'Loading more…';
-          // simulate network delay
-          setTimeout(()=> {
-            const feed = document.querySelector('.feed');
-            for (let i=0;i<2;i++){
-              const clone = feed.querySelector('.post-card').cloneNode(true);
-              // update random image
-              const img = clone.querySelector('.post-media img');
-              img.src = `https://picsum.photos/900/600?random=${Math.floor(Math.random()*1000)}`;
-              feed.appendChild(clone);
-            }
-            document.getElementById('moreIndicator').textContent = 'Scroll to load more…';
-            loadingMore = false;
-          }, 900);
-        }
-      });
-
-      // Optional: small entry animation for post cards
-      document.querySelectorAll('.post-card').forEach((card, idx) => {
-        card.style.opacity = 0;
-        card.style.transform = 'translateY(10px)';
-        setTimeout(()=> {
-          card.style.transition = 'opacity .45s cubic-bezier(.2,.9,.2,1), transform .45s';
-          card.style.opacity = 1;
-          card.style.transform = 'translateY(0)';
-        }, 90 + idx * 80);
-      });
-
-    })();
-  </script>
-
-  <!-- If you have a centralized app.js, import it instead of inline script above:
-  <script type="module" src="assets/js/app.js"></script>
-  -->
+  <!-- Scripts -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/feed.js"></script>
 
 </body>
 </html>
