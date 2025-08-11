@@ -3,81 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #fff;
-      font-family: 'Inter', sans-serif;
-    }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .violet-btn {
-      color: #7c3aed;
-    }
-    .violet-outline {
-      border: 1px solid #7c3aed;
-    }
-    .cover-photo {
-      height: 200px;
-      object-fit: cover;
-    }
-    .profile-pic {
-      width: 120px;
-      height: 120px;
-      border: 4px solid white;
-      margin-top: -60px;
-    }
-  </style>
+  <title>Rivo Chat - Profile</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="flex flex-col min-h-screen fade-in">
+<body>
 
-  <!-- Cover Photo -->
-  <div class="relative">
-    <img src="https://source.unsplash.com/random/1200x400?cover" class="w-full cover-photo" alt="Cover Photo"/>
-    <div class="absolute top-4 right-4">
-      <button class="bg-white p-2 rounded-full shadow"><i class="fa-solid fa-camera"></i></button>
-    </div>
-  </div>
+<main id="profile-main">
 
-  <!-- Profile Info -->
-  <div class="px-4">
-    <img src="https://i.pravatar.cc/150" class="rounded-full profile-pic shadow"/>
-    <h2 class="text-2xl font-bold mt-2">John Doe</h2>
-    <p class="text-gray-600">@johndoe</p>
-    <p class="mt-2">Photographer | Traveler | Storyteller 📸✈️</p>
-    <div class="flex gap-4 mt-3">
-      <div><span class="font-bold">250</span> Posts</div>
-      <div><span class="font-bold">5.2k</span> Followers</div>
-      <div><span class="font-bold">420</span> Following</div>
-    </div>
-    <div class="mt-4 flex gap-3">
-      <button class="bg-violet-600 text-white px-4 py-2 rounded-full">Follow</button>
-      <button class="violet-outline px-4 py-2 rounded-full">Message</button>
-    </div>
-  </div>
+  <!-- Profile Header -->
+  <section class="profile-header">
+    <img id="profileAvatar" src="assets/icons/default.png" class="avatar-large">
+    <h2 id="profileName">Guest User</h2>
+    <p id="profileBio">This is your bio. Edit it in settings.</p>
+    <button id="editProfileBtn">Edit Profile</button>
+  </section>
 
   <!-- Tabs -->
-  <div class="flex border-b mt-6">
-    <button class="flex-1 py-3 text-center font-semibold border-b-2 border-violet-600">Posts</button>
-    <button class="flex-1 py-3 text-center text-gray-600">Tagged</button>
-  </div>
+  <nav class="profile-tabs">
+    <button data-tab="posts" class="active">Posts</button>
+    <button data-tab="friends">Friends</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
 
-  <!-- Posts Grid -->
-  <div class="grid grid-cols-3 gap-1 mt-1">
-    <img src="https://source.unsplash.com/random/400x400?sig=1" class="w-full h-40 object-cover"/>
-    <img src="https://source.unsplash.com/random/400x400?sig=2" class="w-full h-40 object-cover"/>
-    <img src="https://source.unsplash.com/random/400x400?sig=3" class="w-full h-40 object-cover"/>
-    <img src="https://source.unsplash.com/random/400x400?sig=4" class="w-full h-40 object-cover"/>
-    <img src="https://source.unsplash.com/random/400x400?sig=5" class="w-full h-40 object-cover"/>
-    <img src="https://source.unsplash.com/random/400x400?sig=6" class="w-full h-40 object-cover"/>
-  </div>
+  <!-- Tab Content -->
+  <section id="tab-posts" class="tab-content">
+    <div id="userPosts" class="post-grid">
+      <p class="placeholder">No posts yet.</p>
+    </div>
+  </section>
+
+  <section id="tab-friends" class="tab-content hidden">
+    <ul id="friendsList">
+      <li>DemoFriend1</li>
+      <li>DemoFriend2</li>
+    </ul>
+  </section>
+
+  <section id="tab-settings" class="tab-content hidden">
+    <label>
+      Name: <input type="text" id="editName">
+    </label>
+    <label>
+      Bio: <textarea id="editBio"></textarea>
+    </label>
+    <button id="saveProfileBtn">Save</button>
+  </section>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="index.html"><img src="assets/icons/home.png"><span>Feed</span></a>
+  <a href="chat.html"><img src="assets/icons/chat.png"><span>Chat</span></a>
+  <a href="profile.html"><img src="assets/icons/user.png"><span>Profile</span></a>
+</nav>
+
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/profile.js"></script>
 
 </body>
 </html>
