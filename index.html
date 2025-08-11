@@ -1,107 +1,121 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo — Home (Premium)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instagram UI — Gradient Concept with Story Viewer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <style>
-    /* Hide scrollbar for stories row */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    /* Like animation */
-    .liked { color: #ef4444; transform: scale(1.2); transition: transform 0.2s ease; }
+    :root{
+      --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);
+    }
+    body{
+      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+    }
+    .story-ring{
+      background: var(--ig-grad);
+      padding: 2px;
+      border-radius: 9999px;
+    }
+    .story-inner{
+      background: white;
+      padding: 2px;
+      border-radius: 9999px;
+    }
+    .grad-icon{
+      background: var(--ig-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-glass{ backdrop-filter: blur(6px); background: rgba(255,255,255,0.7); }
+    .like-heart{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.8);
+      font-size:96px; color: rgba(255,255,255,0.95); opacity:0; transition: transform 300ms cubic-bezier(.2,.9,.2,1), opacity 300ms;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.45);
+      pointer-events:none;
+    }
+    .like-heart.show{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    .story-viewer{
+      position:fixed; inset:0; background:black; display:flex; flex-direction:column; z-index:50; color:white;
+    }
+    .story-bar{
+      height:3px; background:rgba(255,255,255,0.3); margin:8px 4px; flex:1; border-radius:2px; overflow:hidden;
+    }
+    .story-bar-fill{
+      height:100%; background:white; width:0%; transition:width 5s linear;
+    }
   </style>
 </head>
-<body class="bg-gray-100">
-
-  <!-- Header -->
-  <header class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white p-4 flex justify-between items-center shadow">
-    <h1 class="text-lg font-bold tracking-wide">Rivo</h1>
-    <i class="fas fa-paper-plane text-xl cursor-pointer hover:scale-110 transition"></i>
-  </header>
-
-  <!-- Stories -->
-  <section class="p-4 flex space-x-4 overflow-x-auto bg-white no-scrollbar">
-    <!-- Story Template -->
-    <template id="story-template">
-      <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition">
-        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[2px]">
-          <img src="" class="w-full h-full rounded-full border-2 border-white object-cover">
-        </div>
-        <span class="text-xs mt-1 truncate w-16 text-center"></span>
-      </div>
-    </template>
-  </section>
-
-  <!-- Share Box -->
-  <section class="p-4 bg-white mt-4 shadow-sm rounded-lg">
-    <div class="flex items-center space-x-4">
-      <img src="profile.jpg" class="w-10 h-10 rounded-full object-cover">
-      <input type="text" placeholder="Share something..." class="flex-1 p-2 border rounded-full focus:ring-2 focus:ring-pink-400 focus:outline-none transition">
+<body class="min-h-screen flex flex-col text-gray-900"><header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-camera grad-icon text-2xl"></i>
+      <h1 class="text-xl font-semibold">Instagram</h1>
     </div>
+    <div class="flex items-center gap-4 text-xl text-gray-700">
+      <button><i class="fa-regular fa-square-plus"></i></button>
+      <button><i class="fa-regular fa-paper-plane"></i></button>
+    </div>
+  </div>
+</header><main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
+  <section class="bg-white rounded-lg shadow-sm p-3">
+    <div id="storiesRow" class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1"></div>
   </section>
+  <section id="feed" class="space-y-6"></section>
+</main><nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+  <div class="w-full max-w-3xl px-4">
+    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+      <button class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></button>
+      <button class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></button>
+      <button class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></button>
+      <button class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></button>
+    </div>
+  </div>
+</nav><div id="storyViewer" class="hidden"></div><script>
+const stories = [
+  {id:1, user:'anbu', img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=60'},
+  {id:2, user:'meena', img:'https://images.unsplash.com/photo-1545996124-1b0f4f9f63d6?w=800&q=60'}
+];
 
-  <!-- Posts -->
-  <section id="posts-container" class="p-4 space-y-4">
-    <!-- Posts injected by JS -->
-  </section>
+const posts = [
+  {id:'post1', user:'anbu', avatar:'https://i.pravatar.cc/150?img=32', location:'Chennai', img:'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=1200&q=80', likes:128, caption:'Exploring the coastlines.', time:'2h'}
+];
 
-  <script>
-    const storiesData = [
-      { user: 'User 1', img: 'story1.jpg' },
-      { user: 'User 2', img: 'story2.jpg' },
-      { user: 'User 3', img: 'story3.jpg' },
-      { user: 'User 4', img: 'story4.jpg' }
-    ];
+const storiesRow = document.getElementById('storiesRow');
+stories.forEach(s => {
+  const story = document.createElement('div');
+  story.className = 'flex flex-col items-center w-20 shrink-0 cursor-pointer';
+  story.innerHTML = `<div class="story-ring"><div class="story-inner"><img src="${s.img}" class="w-16 h-16 rounded-full object-cover"/></div></div><p class="text-xs mt-2">${s.user}</p>`;
+  story.addEventListener('click',()=>openStory(s));
+  storiesRow.appendChild(story);
+});
 
-    const postsData = [
-      { user: 'User 1', avatar: 'user1.jpg', img: 'post1.jpg', caption: 'Caption for post 1', liked: false },
-      { user: 'User 2', avatar: 'user2.jpg', img: 'post2.jpg', caption: 'Caption for post 2', liked: false }
-    ];
+function openStory(story){
+  const viewer = document.getElementById('storyViewer');
+  viewer.innerHTML = `
+    <div class="story-viewer">
+      <div class="flex gap-1 px-2 mt-2">
+        <div class="story-bar"><div class="story-bar-fill"></div></div>
+      </div>
+      <div class="flex-1 flex items-center justify-center">
+        <img src="${story.img}" class="max-h-full max-w-full object-contain"/>
+      </div>
+    </div>
+  `;
+  viewer.classList.remove('hidden');
+  const fill = viewer.querySelector('.story-bar-fill');
+  requestAnimationFrame(()=> fill.style.width = '100%');
+  setTimeout(()=> viewer.classList.add('hidden'), 5000);
+}
 
-    // Render stories
-    const storyTemplate = document.getElementById('story-template').content;
-    const storiesSection = document.querySelector('section.p-4.flex');
-    storiesData.forEach(s => {
-      const clone = storyTemplate.cloneNode(true);
-      clone.querySelector('img').src = s.img;
-      clone.querySelector('span').textContent = s.user;
-      storiesSection.appendChild(clone);
-    });
-
-    // Render posts
-    const postsContainer = document.getElementById('posts-container');
-    postsData.forEach((p, index) => {
-      const post = document.createElement('article');
-      post.className = 'bg-white border rounded-lg overflow-hidden shadow-sm';
-      post.innerHTML = `
-        <header class="flex items-center p-4 space-x-2">
-          <img src="${p.avatar}" class="w-8 h-8 rounded-full object-cover">
-          <span class="font-semibold">${p.user}</span>
-        </header>
-        <img src="${p.img}" class="w-full object-cover">
-        <footer class="p-4">
-          <div class="flex space-x-4 text-xl mb-2">
-            <i class="far fa-heart cursor-pointer like-btn"></i>
-            <i class="far fa-comment cursor-pointer"></i>
-            <i class="far fa-paper-plane cursor-pointer"></i>
-          </div>
-          <p class="text-sm"><strong>${p.user}</strong> ${p.caption}</p>
-        </footer>
-      `;
-      // Like button toggle
-      const likeBtn = post.querySelector('.like-btn');
-      likeBtn.addEventListener('click', () => {
-        p.liked = !p.liked;
-        likeBtn.classList.toggle('fas', p.liked);
-        likeBtn.classList.toggle('far', !p.liked);
-        likeBtn.classList.toggle('liked', p.liked);
-      });
-      postsContainer.appendChild(post);
-    });
-  </script>
-
-</body>
+const feed = document.getElementById('feed');
+posts.forEach(p => {
+  const art = document.createElement('article');
+  art.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
+  art.innerHTML = `<div class="flex items-center gap-3 p-4"><img src="${p.avatar}" class="w-10 h-10 rounded-full"/><div class="flex-1"><p class="font-semibold text-sm">${p.user}</p><p class="text-xs text-gray-500">${p.location}</p></div></div><img src="${p.img}"/><div class="px-4 py-3"><p class="font-semibold text-sm">${p.likes} likes</p><p class="text-sm mt-1"><span class="font-semibold">${p.user}</span> ${p.caption}</p><p class="text-xs text-gray-400 mt-2">${p.time}</p></div>`;
+  feed.appendChild(art);
+});
+</script></body>
 </html>
