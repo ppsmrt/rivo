@@ -4,66 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rivo Chat</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="app.js" defer></script>
 </head>
 <body>
 
-  <!-- Top Navbar -->
-  <header class="topbar">
-    <h1>Rivo Chat</h1>
-  </header>
+  <header class="app-header">Rivo Chat</header>
 
-  <!-- Feed -->
-  <main class="feed">
-    <div class="post">
-      <img src="https://placekitten.com/400/300" alt="Post Image">
-      <div class="post-content">
-        <strong>@DemoUser1</strong> Loving the vibes ✨
-      </div>
-      <div class="post-actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
-      </div>
-    </div>
-
-    <div class="post">
-      <img src="https://placekitten.com/401/300" alt="Post Image">
-      <div class="post-content">
-        <strong>@DemoUser2</strong> Perfect sunset 🌅
-      </div>
-      <div class="post-actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
-      </div>
-    </div>
-
-    <div class="post">
-      <img src="https://placekitten.com/402/300" alt="Post Image">
-      <div class="post-content">
-        <strong>@DemoUser3</strong> Coffee first ☕
-      </div>
-      <div class="post-actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
-      </div>
-    </div>
+  <main class="feed" id="feed">
+    <!-- Posts will load here -->
   </main>
 
-  <!-- Floating Add Post Button -->
-  <button class="fab">＋</button>
-
-  <!-- Bottom Navbar -->
-  <nav class="bottombar">
-    <a href="index.html">🏠</a>
-    <a href="chat.html">💬</a>
-    <a href="profile.html">👤</a>
+  <nav class="bottom-nav">
+    <button class="nav-btn active">🏠</button>
+    <button class="nav-btn">💬</button>
+    <button class="nav-btn">👤</button>
   </nav>
+
+  <button class="fab" onclick="addPost()">+</button>
 
 </body>
 </html>
