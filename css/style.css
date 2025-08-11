@@ -231,3 +231,71 @@ main {
   color: white;
   font-size: 1.2rem;
 }
+/* ===== Profile ===== */
+.profile-header {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.avatar-large {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-header h2 {
+  margin: 10px 0 5px;
+}
+
+.profile-header p {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.profile-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  font-weight: 600;
+}
+
+.profile-tabs button.active {
+  border-bottom: 3px solid #ff5f6d;
+  color: #ff5f6d;
+}
+
+.tab-content {
+  padding: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.post-grid img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.placeholder {
+  color: #888;
+  text-align: center;
+  width: 100%;
+  }
