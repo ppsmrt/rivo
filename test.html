@@ -1,102 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auth UI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rivo — Home (Premium)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    .input-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9CA3AF;
-    }
-    input {
-      padding-left: 2.5rem;
-    }
-    input:focus {
-      outline: none;
-      border-color: #6C4CFF;
-      box-shadow: 0 0 0 2px rgba(108, 76, 255, 0.3);
-    }
-    .auth-card {
-      transition: all 0.4s ease;
-    }
-  </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-white flex items-center justify-center min-h-screen">
-  <div id="authCard" class="auth-card bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm">
-    <h1 id="formTitle" class="text-2xl font-bold text-center mb-6">Create Account</h1>
-    <form id="signupForm" class="space-y-4">
-      <div class="relative">
-        <i class="fa fa-user input-icon"></i>
-        <input type="text" placeholder="Name" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
-      </div>
-      <div class="relative">
-        <i class="fa fa-envelope input-icon"></i>
-        <input type="email" placeholder="Email" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
-      </div>
-      <div class="relative">
-        <i class="fa fa-lock input-icon"></i>
-        <input type="password" placeholder="Password" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
-      </div>
-      <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition">
-        <span>Create Account</span> <i class="fa fa-arrow-right text-white"></i>
-      </button>
-      <div class="flex justify-center gap-4 mt-4">
-        <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
-          <i class="fab fa-google text-xl text-gray-600"></i>
-        </button>
-        <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
-          <i class="fab fa-facebook-f text-xl text-gray-600"></i>
-        </button>
-      </div>
-    </form>
+<body class="bg-gray-100">
+  
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white p-4 flex justify-between items-center">
+    <h1 class="text-lg font-bold">Rivo</h1>
+    <i class="fas fa-paper-plane text-xl"></i>
+  </header>
 
-    <p class="text-center text-sm text-gray-500 mt-6">
-      Already have an account? 
-      <a href="#" id="toggleAuth" class="text-purple-600 font-medium">Sign In</a>
-    </p>
-  </div>
+  <!-- Stories -->
+  <section class="p-4 flex space-x-4 overflow-x-auto bg-white">
+    <div class="flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[2px]">
+        <img src="story1.jpg" class="w-full h-full rounded-full border-2 border-white">
+      </div>
+      <span class="text-xs mt-1">User 1</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-500 p-[2px]">
+        <img src="story2.jpg" class="w-full h-full rounded-full border-2 border-white">
+      </div>
+      <span class="text-xs mt-1">User 2</span>
+    </div>
+  </section>
 
-  <script>
-    const toggleAuth = document.getElementById("toggleAuth");
-    const formTitle = document.getElementById("formTitle");
-    const signupForm = document.getElementById("signupForm");
+  <!-- Share Box -->
+  <section class="p-4 bg-white mt-4">
+    <div class="flex items-center space-x-4">
+      <img src="profile.jpg" class="w-10 h-10 rounded-full">
+      <input type="text" placeholder="Share something..." class="flex-1 p-2 border rounded-full">
+    </div>
+  </section>
 
-    toggleAuth.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (formTitle.textContent === "Create Account") {
-        formTitle.textContent = "Sign In";
-        signupForm.innerHTML = `
-          <div class="relative">
-            <i class="fa fa-envelope input-icon"></i>
-            <input type="email" placeholder="Email" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
-          </div>
-          <div class="relative">
-            <i class="fa fa-lock input-icon"></i>
-            <input type="password" placeholder="Password" class="w-full border rounded-lg px-3 py-2 border-gray-300 focus:border-purple-600">
-          </div>
-          <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition">
-            <span>Sign In</span> <i class="fa fa-arrow-right text-white"></i>
-          </button>
-          <div class="flex justify-center gap-4 mt-4">
-            <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
-              <i class="fab fa-google text-xl text-gray-600"></i>
-            </button>
-            <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
-              <i class="fab fa-facebook-f text-xl text-gray-600"></i>
-            </button>
-          </div>
-        `;
-        toggleAuth.textContent = "Create Account";
-      } else {
-        location.reload();
-      }
-    });
-  </script>
+  <!-- Posts -->
+  <section class="p-4 bg-white mt-4 space-y-4">
+    <article class="border rounded-lg overflow-hidden">
+      <header class="flex items-center p-4 space-x-2">
+        <img src="user1.jpg" class="w-8 h-8 rounded-full">
+        <span class="font-semibold">User 1</span>
+      </header>
+      <img src="post1.jpg" class="w-full">
+      <footer class="p-4">
+        <div class="flex space-x-4 text-xl">
+          <i class="far fa-heart"></i>
+          <i class="far fa-comment"></i>
+          <i class="far fa-paper-plane"></i>
+        </div>
+        <p class="mt-2 text-sm"><strong>User 1</strong> Caption for post 1</p>
+      </footer>
+    </article>
+
+    <article class="border rounded-lg overflow-hidden">
+      <header class="flex items-center p-4 space-x-2">
+        <img src="user2.jpg" class="w-8 h-8 rounded-full">
+        <span class="font-semibold">User 2</span>
+      </header>
+      <img src="post2.jpg" class="w-full">
+      <footer class="p-4">
+        <div class="flex space-x-4 text-xl">
+          <i class="far fa-heart"></i>
+          <i class="far fa-comment"></i>
+          <i class="far fa-paper-plane"></i>
+        </div>
+        <p class="mt-2 text-sm"><strong>User 2</strong> Caption for post 2</p>
+      </footer>
+    </article>
+  </section>
+
 </body>
 </html>
