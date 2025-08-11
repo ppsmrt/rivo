@@ -3,38 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up - Rivo</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Rivo Chat - Sign Up</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="app-body">
+<body class="auth-page">
 
-  <header class="app-header">
-    <h1 class="title">Sign Up</h1>
-  </header>
+<section class="auth-container">
+  <img src="assets/logo.png" class="auth-logo">
+  <h1>Sign Up</h1>
 
-  <main class="form-container">
-    <form class="auth-form">
-      <div class="input-group">
-        <i class="fa fa-user"></i>
-        <input type="text" placeholder="Name" required>
-      </div>
-      <div class="input-group">
-        <i class="fa fa-envelope"></i>
-        <input type="email" placeholder="Email" required>
-      </div>
-      <div class="input-group">
-        <i class="fa fa-lock"></i>
-        <input type="password" placeholder="Password" required>
-      </div>
-      <button type="submit" class="btn-primary">
-        <i class="fa fa-user-plus"></i> Sign Up
-      </button>
-    </form>
+  <input type="text" id="signupName" placeholder="Full Name" required>
+  <input type="email" id="signupEmail" placeholder="Email" required>
+  <input type="password" id="signupPassword" placeholder="Password" required>
+  
+  <button id="signupBtn">Sign Up</button>
 
-    <p class="form-footer">Already have an account? <a href="signin.html">Sign In</a></p>
-  </main>
+  <p>Already have an account? <a href="login.html">Login</a></p>
+</section>
 
-  <script type="module" src="assets/js/signup.js"></script>
+<script type="module">
+import { auth, db } from "./js/firebase-config.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+document.getElementById("signupBtn").addEventListener("click", () => {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+
+  if (!name || !email || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      set(ref(db, `users/${uid}`), {
+        name,
+        bio: "Hello! I’m using Rivo Chat.",
+        avatar: "assets/icons/default.png"
+      });
+      window.location.href = "index.html";
+    })
+    .catch(err => {
+      alert(err.message);
+    });
+});
+</script>
+
 </body>
 </html>
