@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home Feed</title>
+
+  <!-- Tailwind utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="assets/css/theme.css" />
+
+  <style>
+    :root {
+      --violet: #7c3aed;
+      --glass-bg: rgba(255,255,255,0.55);
+    }
+    html,body { height: 100%; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      margin:0;
+      color: #0f172a;
+    }
+    @keyframes gradientShift {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    footer.app-footer {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom,12px);
+      left:0; right:0;
+      padding: 12px 18px calc(env(safe-area-inset-bottom,12px) + 12px);
+      border-top: 1px solid rgba(255,255,255,0.45);
+      justify-content:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.50));
+      display:flex;
+      z-index:60;
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      backdrop-filter: blur(12px) saturate(140%);
+    }
+    .page-wrap { max-width:980px; margin: 20px auto 140px; padding: 16px; }
+    .create-card { border-radius:14px; background: rgba(255,255,255,0.9); padding:14px; box-shadow: 0 8px 24px rgba(12,15,25,0.06); display:flex; gap:14px; align-items:flex-start; }
+    .story-ring { width:72px; height:72px; border-radius:999px; padding:4px; display:inline-flex; align-items:center; justify-content:center; background: conic-gradient(#ff9a9e, #fad0c4, #fbc2eb, #a6c1ee); }
+    .story-ring img { width:100%; height:100%; border-radius:999px; padding: 3px; background:#fff; object-fit:cover; }
+    .feed { display:flex; flex-direction:column; gap:16px; }
+    .post-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow: 0 8px 26px rgba(12,15,25,0.06); transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s; }
+    .post-card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(12,15,25,0.12); }
+    .post-media img { width:100%; height:auto; display:block; object-fit:cover; }
+    .post-body { padding:12px; }
+    .post-meta { display:flex; align-items:center; gap:12px; }
+    .post-actions { display:flex; gap:12px; align-items:center; }
+    .gradient-text {
+      background: linear-gradient(270deg,#ff7eb3,#ff758c,#ffce00,#9be15d,#00c6ff,#845ec2);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      font-weight:700;
+    }
+    .fab {
+      position: fixed; right:18px; bottom: 92px;
+      background: linear-gradient(135deg,#ff6b6b,#7c3aed);
+      color:#fff; width:62px; height:62px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 12px 30px rgba(124,58,237,0.18); z-index:80; cursor:pointer;
+      transition: transform .18s;
+    }
+    .fab:active { transform: scale(.96); }
+    .avatar-sm { width:40px;height:40px;border-radius:999px;object-fit:cover; }
+    .muted { color: #6b7280; font-size: .92rem; }
+    .accent-ring { border-radius:12px; padding:6px; background: linear-gradient(90deg,#ff9a9e,#b980ff); }
+    @media (max-width: 900px) {
+      .page-wrap { margin: 20px 12px 120px; padding:12px; }
+      .story-ring { width:62px; height:62px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page wrapper -->
+  <main class="page-wrap">
+
+    <!-- Create post -->
+    <section class="create-card" aria-labelledby="create-post-heading">
+      <img src="https://i.pravatar.cc/60?u=you" class="avatar-sm" alt="You">
+      <div style="flex:1">
+        <h2 id="create-post-heading" class="text-lg font-semibold">Create post</h2>
+        <p class="muted text-sm mb-2">Share a photo, quick thought, or a short video.</p>
+        <div class="flex gap-3">
+          <input id="imageInput" type="file" accept="image/*,video/*" class="hidden" />
+          <label for="imageInput" class="px-4 py-2 rounded-md border border-gray-200 cursor-pointer">Choose</label>
+          <input id="captionInput" type="text" placeholder="Write a caption..." class="flex-1 px-3 py-2 rounded-md border border-gray-200" />
+          <button id="uploadBtn" class="px-4 py-2 rounded-md bg-violet-600 text-white">Upload</button>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Images compressed client-side to WebP for smaller uploads.</p>
+      </div>
+    </section>
+
+    <!-- Stories -->
+    <section class="bg-white rounded-xl p-3 shadow-sm overflow-x-auto whitespace-nowrap">
+      <div class="flex items-center gap-4">
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=12" alt="Alex" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=13" alt="Sam" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=14" alt="Lily" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=15" alt="John" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=16" alt="Emma" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=17" alt="Mira" /></div>
+        <div class="story-ring"><img src="https://i.pravatar.cc/80?img=18" alt="Ravi" /></div>
+      </div>
+    </section>
+
+    <!-- Feed -->
+    <section class="feed">
+
+      <!-- Post 1 -->
+      <article class="post-card">
+        <div class="p-3 post-meta flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="https://i.pravatar.cc/40?img=10" class="avatar-sm" alt="Anbu" />
+            <div><div class="font-semibold">Anbu</div><div class="muted text-xs">2h • Chennai</div></div>
+          </div>
+          <div class="muted"><i class="fa-solid fa-ellipsis"></i></div>
+        </div>
+        <div class="post-media"><img src="https://picsum.photos/id/1011/900/600" alt="Sunset" /></div>
+        <div class="post-body">
+          <div class="post-actions flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <button class="like-btn text-2xl hover:text-rose-600" aria-label="Like"><i class="fa-regular fa-heart"></i></button>
+              <button class="text-2xl" aria-label="Comment"><i class="fa-regular fa-comment"></i></button>
+              <button class="text-2xl" aria-label="Share"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            <div class="text-sm muted">120 likes</div>
+          </div>
+          <div class="mt-3">
+            <div><strong>Anbu</strong> Visiting the coast — loving this sunset. #ocean #sunset</div>
+            <div class="mt-2 text-sm text-gray-600">View all 8 comments</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Post 2 -->
+      <article class="post-card p-3">
+        <div class="flex items-start gap-3">
+          <img src="https://i.pravatar.cc/40?img=11" class="avatar-sm" alt="Travel Guru" />
+          <div style="flex:1">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold">travel_guru <span class="muted text-xs">@travel_guru • 1h</span></div>
+              <div class="muted"><i class="fa-solid fa-ellipsis"></i></div>
+            </div>
+            <p class="mt-2">Mountains are calling — pack your bag and go. 🏔️</p>
+            <div class="mt-3 flex items-center justify-between">
+              <div class="flex items-center gap-4 muted">
+                <button class="like-btn text-lg"><i class="fa-regular fa-heart"></i></button>
+                <button class="text-lg"><i class="fa-regular fa-comment"></i></button>
+                <button class="text-lg"><i class="fa-solid fa-share"></i></button>
+              </div>
+              <div class="text-sm muted">312 likes</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Post 3 -->
+      <article class="post-card">
+        <div class="p-3 post-meta flex items-center gap-3">
+          <img src="https://i.pravatar.cc/40?img=12" class="avatar-sm" alt="Meena" />
+          <div><div class="font-semibold">Meena</div><div class="muted text-xs">4h • Bangalore</div></div>
+        </div>
+        <div class="post-body">
+          <p>Sharing a memory from the weekend — coffee and code ☕️💻</p>
+          <div class="mt-3 text-sm muted">Liked by <strong>Anna</strong> and <strong>78 others</strong></div>
+          <div class="mt-3 border rounded p-3 bg-gray-50">
+            <div class="text-sm"><strong>Ravi</strong> Nice capture — love that filter!</div>
+            <div class="text-sm muted mt-1">Reply · 2h</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- More posts -->
+      <div id="moreIndicator" class="text-center muted py-6">Scroll to load more…</div>
+
+    </section>
+  </main>
+
+  <!-- Floating action button -->
+  <button class="fab" id="fabUpload" title="New post"><i class="fa-solid fa-plus"></i></button>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <nav class="flex items-center gap-8">
+      <a href="index.html" class="text-violet-600"><i class="fa-solid fa-house fa-lg"></i></a>
+      <a href="explore.html" class="text-gray-600"><i class="fa-regular fa-compass fa-lg"></i></a>
+      <a href="upload.html" class="text-white"><div class="accent-ring p-1 rounded-md"><i class="fa-regular fa-square-plus"></i></div></a>
+      <a href="messages.html" class="text-gray-600"><i class="fa-regular fa-comment-dots fa-lg"></i></a>
+      <a href="profile.html" class="text-gray-600"><i class="fa-regular fa-user fa-lg"></i></a>
+    </nav>
+  </footer>
+
+  <!-- JS -->
+  <script type="module" src="assets/js/ui.js"></script>
+  <script type="module" src="assets/js/animations.js"></script>
+
+  <script>
+    (function(){
+      document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const icon = btn.querySelector('i');
+          icon.classList.toggle('fa-regular');
+          icon.classList.toggle('fa-solid');
+          icon.style.color = icon.classList.contains('fa-solid') ? 'rgb(239,71,111)' : '';
+        });
+      });
+      document.querySelectorAll('.post-media img').forEach(img => {
+        let lastTap = 0;
+        img.addEventListener('click', (e) => {
+          const now = Date.now();
+          if (now - lastTap < 300) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤';
+            Object.assign(heart.style, {
+              position: 'absolute', left: e.offsetX+'px', top: e.offsetY+'px',
+              transform: 'translate(-50%,-50%) scale(0.9)',
+              fontSize: '48px', color: 'rgba(239,71,111,0.95)', opacity: '0',
+              transition: 'transform .45s cubic-bezier(.2,.9,.2,1), opacity .45s'
+            });
+            img.parentElement.style.position = 'relative';
+            img.parentElement.appendChild(heart);
+            requestAnimationFrame(()=> {
+              heart.style.opacity = '1';
+              heart.style.transform = 'translate(-50%,-50%) scale(1.06)';
+            });
+            setTimeout(()=> {
+              heart.style.opacity = '0';
+              heart.style.transform = 'translate(-50%,-50%) scale(0.8)';
+            }, 480);
+            setTimeout(()=> heart.remove(), 850);
+            const post = img.closest('.post-card');
+            post.querySelector('.like-btn')?.click();
+          }
+          lastTap = now;
+        });
+      });
+      document.getElementById('fabUpload').addEventListener('click', ()=> {
+        document.getElementById('imageInput').click();
+      });
+      let loadingMore = false;
+      window.addEventListener('scroll', () => {
+        const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 900);
+        if (nearBottom && !loadingMore) {
+          loadingMore = true;
+          document.getElementById('moreIndicator').textContent = 'Loading more…';
+          setTimeout(()=> {
+            const feed = document.querySelector('.feed');
+            for (let i=0;i<2;i++){
+              const clone = feed.querySelector('.post-card').cloneNode(true);
+              const img = clone.querySelector('.post-media img');
+              if (img) img.src = `https://picsum.photos/900/600?random=${Math.floor(Math.random()*1000)}`;
+              feed.appendChild(clone);
+            }
+            document.getElementById('moreIndicator').textContent = 'Scroll to load more…';
+            loadingMore = false;
+          }, 900);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
