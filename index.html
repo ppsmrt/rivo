@@ -1,27 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rivo Chat</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" src="app.js" defer></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rivo Chat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+  .chat-box::-webkit-scrollbar { width: 6px; }
+  .chat-box::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+  }
+</style>
 </head>
-<body>
+<body class="bg-gray-50 flex flex-col min-h-screen">
 
-  <header class="app-header">Rivo Chat</header>
+<!-- Header -->
+<header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
+  <h1 class="text-lg font-bold text-gray-800">Rivo Chat</h1>
+  <button class="text-gray-700 hover:text-rose-600 transition">
+    <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
+  </button>
+</header>
 
-  <main class="feed" id="feed">
-    <!-- Posts will load here -->
-  </main>
+<!-- Chat Messages -->
+<main id="chatBox" class="flex-grow overflow-y-auto p-4 space-y-3 chat-box">
+  <!-- Messages will render here -->
+</main>
 
-  <nav class="bottom-nav">
-    <button class="nav-btn active">🏠</button>
-    <button class="nav-btn">💬</button>
-    <button class="nav-btn">👤</button>
-  </nav>
+<!-- Chat Input -->
+<footer class="bg-white p-3 flex items-center gap-2 border-t">
+  <input id="msgInput" type="text" placeholder="Type a message..."
+    class="flex-grow border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+  <button id="sendBtn" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded">
+    <i class="fa-solid fa-paper-plane"></i>
+  </button>
+</footer>
 
-  <button class="fab" onclick="addPost()">+</button>
+<script>
+  const messages = [
+    { id: 1, sender: 'other', text: 'Hey! Welcome to Rivo Chat 👋', time: '10:01 AM' },
+    { id: 2, sender: 'me', text: 'Thanks! Excited to try this.', time: '10:02 AM' }
+  ];
+
+  function renderMessages() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+    messages.forEach(msg => {
+      const wrapper = document.createElement('div');
+      wrapper.className = msg.sender === 'me' ? 'flex justify-end' : 'flex justify-start';
+
+      const bubble = document.createElement('div');
+      bubble.className = `max-w-xs px-4 py-2 rounded-lg shadow text-white ${
+        msg.sender === 'me' ? 'bg-rose-500 rounded-br-none' : 'bg-gray-600 rounded-bl-none'
+      }`;
+      bubble.innerHTML = `<p>${msg.text}</p>
+                          <span class="text-xs opacity-70 block mt-1">${msg.time}</span>`;
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    messages.push({
+      id: Date.now(),
+      sender: 'me',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    input.value = '';
+    renderMessages();
+  });
+
+  renderMessages();
+</script>
 
 </body>
 </html>
