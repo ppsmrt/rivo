@@ -1,107 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rivo Chat - Feed</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rivo Chat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
+  <!-- Top Navbar -->
+  <header class="topbar">
+    <h1>Rivo Chat</h1>
+  </header>
+
   <!-- Feed -->
-  <main id="feed">
-    <!-- Demo Post 1 -->
-    <article class="post">
-      <header>
-        <img src="assets/icons/user1.png" class="avatar">
-        <span class="username">DemoUser1</span>
-      </header>
-      <img src="assets/demo/demo1.jpg" class="post-image">
-      <div class="actions">
-        <button class="like-btn">❤️</button>
-        <button class="comment-btn">💬</button>
-        <button class="share-btn">🔗</button>
+  <main class="feed">
+    <div class="post">
+      <img src="https://placekitten.com/400/300" alt="Post Image">
+      <div class="post-content">
+        <strong>@DemoUser1</strong> Loving the vibes ✨
       </div>
-      <p class="caption"><strong>DemoUser1</strong> Loving the vibes ✨</p>
-    </article>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </div>
 
-    <!-- Demo Post 2 -->
-    <article class="post">
-      <header>
-        <img src="assets/icons/user2.png" class="avatar">
-        <span class="username">DemoUser2</span>
-      </header>
-      <img src="assets/demo/demo2.jpg" class="post-image">
-      <div class="actions">
-        <button class="like-btn">❤️</button>
-        <button class="comment-btn">💬</button>
-        <button class="share-btn">🔗</button>
+    <div class="post">
+      <img src="https://placekitten.com/401/300" alt="Post Image">
+      <div class="post-content">
+        <strong>@DemoUser2</strong> Perfect sunset 🌅
       </div>
-      <p class="caption"><strong>DemoUser2</strong> Perfect sunset 🌅</p>
-    </article>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </div>
 
-    <!-- Demo Post 3 -->
-    <article class="post">
-      <header>
-        <img src="assets/icons/user3.png" class="avatar">
-        <span class="username">DemoUser3</span>
-      </header>
-      <img src="assets/demo/demo3.jpg" class="post-image">
-      <div class="actions">
-        <button class="like-btn">❤️</button>
-        <button class="comment-btn">💬</button>
-        <button class="share-btn">🔗</button>
+    <div class="post">
+      <img src="https://placekitten.com/402/300" alt="Post Image">
+      <div class="post-content">
+        <strong>@DemoUser3</strong> Coffee first ☕
       </div>
-      <p class="caption"><strong>DemoUser3</strong> Coffee first ☕</p>
-    </article>
-
-    <!-- Demo Post 4 -->
-    <article class="post">
-      <header>
-        <img src="assets/icons/user4.png" class="avatar">
-        <span class="username">DemoUser4</span>
-      </header>
-      <img src="assets/demo/demo4.jpg" class="post-image">
-      <div class="actions">
-        <button class="like-btn">❤️</button>
-        <button class="comment-btn">💬</button>
-        <button class="share-btn">🔗</button>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
       </div>
-      <p class="caption"><strong>DemoUser4</strong> Urban exploring 🏙️</p>
-    </article>
-
-    <!-- Demo Post 5 -->
-    <article class="post">
-      <header>
-        <img src="assets/icons/user5.png" class="avatar">
-        <span class="username">DemoUser5</span>
-      </header>
-      <img src="assets/demo/demo5.jpg" class="post-image">
-      <div class="actions">
-        <button class="like-btn">❤️</button>
-        <button class="comment-btn">💬</button>
-        <button class="share-btn">🔗</button>
-      </div>
-      <p class="caption"><strong>DemoUser5</strong> Beach day 🏖️</p>
-    </article>
+    </div>
   </main>
 
-  <!-- Upload Button -->
-  <div class="upload-btn">
-    <input type="file" id="imageUpload" accept="image/*" hidden>
-    <label for="imageUpload">➕</label>
-  </div>
+  <!-- Floating Add Post Button -->
+  <button class="fab">＋</button>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="index.html"><img src="assets/icons/home.svg"><span>Home</span></a>
-    <a href="chat.html"><img src="assets/icons/chat.svg"><span>Chat</span></a>
-    <a href="profile.html"><img src="assets/icons/user.svg"><span>Profile</span></a>
+  <!-- Bottom Navbar -->
+  <nav class="bottombar">
+    <a href="index.html">🏠</a>
+    <a href="chat.html">💬</a>
+    <a href="profile.html">👤</a>
   </nav>
-
-  <!-- Scripts -->
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/feed.js"></script>
 
 </body>
 </html>
