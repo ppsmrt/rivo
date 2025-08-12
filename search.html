@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search - Rivo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);
+    }
+    .grad-icon {
+      background: var(--ig-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-glass {
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.7);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-900 bg-gray-50">
+
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+  <div class="max-w-3xl mx-auto flex items-center px-4 py-3">
+    <div class="flex-1">
+      <input type="text" id="search-input" placeholder="Search" class="w-full px-3 py-2 rounded-lg bg-gray-100 outline-none text-sm" />
+    </div>
+  </div>
+</header>
+
+<!-- Search Results -->
+<main class="max-w-3xl mx-auto w-full px-1 pb-20">
+  <div id="search-results" class="grid grid-cols-3 gap-1 mt-2"></div>
+</main>
+
+<!-- Post Modal -->
+<div id="post-modal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4">
+  <div class="bg-white max-w-lg w-full rounded-lg overflow-hidden">
+    <div class="flex items-center gap-3 p-4 border-b">
+      <img id="modal-avatar" src="" class="w-10 h-10 rounded-full" />
+      <div>
+        <p id="modal-username" class="font-semibold"></p>
+        <p id="modal-location" class="text-xs text-gray-500"></p>
+      </div>
+      <button class="ml-auto text-gray-500" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <img id="modal-img" src="" class="w-full max-h-[400px] object-cover" />
+    <div class="p-4 space-y-3">
+      <div class="flex items-center gap-4">
+        <button id="like-btn" class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></button>
+        <span id="like-count" class="font-semibold text-sm">0 likes</span>
+      </div>
+      <div id="comments" class="space-y-2 max-h-40 overflow-y-auto text-sm"></div>
+      <form id="comment-form" class="flex gap-2 pt-2 border-t">
+        <input type="text" id="comment-input" placeholder="Add a comment..." class="flex-1 outline-none text-sm p-2" />
+        <button type="submit" class="text-rose-500 font-semibold text-sm">Post</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+  <div class="w-full max-w-3xl px-4">
+    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+      <a href="index.html" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></a>
+      <a href="search.html" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <a href="post.html" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></a>
+      <a href="#" class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></a>
+      <a href="profile.html" class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></a>
+    </div>
+  </div>
+</nav>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
+    authDomain: "rivo-bea46.firebaseapp.com",
+    databaseURL: "https://rivo-bea46-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rivo-bea46",
+    storageBucket: "rivo-bea46.firebasestorage.app",
+    messagingSenderId: "9253016287",
+    appId: "1:9253016287:web:f584476c79e78215f40f6a",
+    measurementId: "G-RY85VPHXVP"
+  };
+
+  // Init Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const resultsGrid = document.getElementById('search-results');
+  const searchInput = document.getElementById('search-input');
+  const username = "your_username"; // replace with logged-in user
+
+  let postsCache = [];
+
+  // Load all posts once
+  db.ref("posts").on("value", snap => {
+    postsCache = [];
+    snap.forEach(child => {
+      postsCache.push({ id: child.key, ...child.val() });
+    });
+    renderResults(postsCache);
+  });
+
+  // Filter results
+  searchInput.addEventListener("input", e => {
+    const term = e.target.value.toLowerCase();
+    const filtered = postsCache.filter(p =>
+      p.user.toLowerCase().includes(term) ||
+      (p.caption && p.caption.toLowerCase().includes(term))
+    );
+    renderResults(filtered);
+  });
+
+  // Render results
+  function renderResults(posts) {
+    resultsGrid.innerHTML = "";
+    posts.forEach(post => {
+      const imgEl = document.createElement("img");
+      imgEl.src = post.img;
+      imgEl.className = "w-full h-full object-cover cursor-pointer";
+      imgEl.onclick = () => openModal(post.id, post);
+      const wrapper = document.createElement("div");
+      wrapper.className = "aspect-square overflow-hidden";
+      wrapper.appendChild(imgEl);
+      resultsGrid.appendChild(wrapper);
+    });
+  }
+
+  // Modal Logic
+  let currentPostId = null;
+
+  function openModal(postId, post) {
+    currentPostId = postId;
+    document.getElementById('modal-avatar').src = post.avatar;
+    document.getElementById('modal-username').textContent = post.user;
+    document.getElementById('modal-location').textContent = post.location || "";
+    document.getElementById('modal-img').src = post.img;
+    loadLikes(postId);
+    loadComments(postId);
+    document.getElementById('post-modal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('post-modal').classList.add('hidden');
+    currentPostId = null;
+  }
+
+  // Likes
+  function loadLikes(postId) {
+    db.ref(`posts/${postId}/likes`).on("value", snap => {
+      const likes = snap.val() || 0;
+      document.getElementById('like-count').textContent = `${likes} likes`;
+    });
+  }
+
+  document.getElementById('like-btn').onclick = () => {
+    if (!currentPostId) return;
+    const likeRef = db.ref(`posts/${currentPostId}/likes`);
+    likeRef.transaction(likes => (likes || 0) + 1);
+  };
+
+  // Comments
+  function loadComments(postId) {
+    const commentsEl = document.getElementById('comments');
+    db.ref(`posts/${postId}/comments`).on("value", snap => {
+      commentsEl.innerHTML = "";
+      snap.forEach(c => {
+        const comment = c.val();
+        const p = document.createElement("p");
+        p.innerHTML = `<span class="font-semibold">${comment.user}</span> ${comment.text}`;
+        commentsEl.appendChild(p);
+      });
+    });
+  }
+
+  document.getElementById('comment-form').onsubmit = e => {
+    e.preventDefault();
+    if (!currentPostId) return;
+    const text = document.getElementById('comment-input').value.trim();
+    if (!text) return;
+    db.ref(`posts/${currentPostId}/comments`).push({
+      user: username,
+      text
+    });
+    document.getElementById('comment-input').value = "";
+  };
+</script>
+
+</body>
+</html>
