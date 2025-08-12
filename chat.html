@@ -2,56 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat - Rivo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Messages — Rivo</title>
+
+  <!-- Tailwind (optional) -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Theme + FontAwesome -->
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <style>
+    /* Local UI tweaks */
+    .chat-row { display:flex; gap:12px; align-items:center; padding:12px; cursor:pointer; }
+    .chat-row:hover { background: rgba(0,0,0,0.02); }
+    .chat-avatar { width:48px; height:48px; border-radius:999px; object-fit:cover; }
+    .chat-last { font-size:12px; color:#6b7280; }
+    .msg-bubble { padding:10px 14px; border-radius:14px; max-width:75%; display:inline-block; word-break:break-word; }
+    .sent { background: linear-gradient(135deg,#ff758c,#ff7eb3); color:#fff; margin-left:auto; border-radius:14px 14px 6px 14px; }
+    .received { background:#f3f4f6; color:#0f172a; border-radius:14px 14px 14px 6px; }
+    .inbox-hidden { display:none; }
+    .conversation-hidden { display:none; }
+    .modal-backdrop { background: rgba(0,0,0,0.45); position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; }
+    .modal { background:white; border-radius:12px; width:100%; max-width:520px; box-shadow:0 8px 32px rgba(0,0,0,0.12); overflow:hidden; }
+    .truncate-1 { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    /* keep main area visible under nav */
+    main { padding-bottom: 110px; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50 text-gray-900">
+<body class="min-h-screen bg-gray-50 text-gray-900">
 
-<!-- Header -->
-<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
-    <h1 class="text-xl font-semibold">Chats</h1>
-    <i class="fa-solid fa-pen-to-square text-xl"></i>
-  </div>
-</header>
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+    <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <button id="inbox-back" class="hidden text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1 id="header-title" class="text-lg font-semibold">Messages</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="new-chat-btn" class="text-xl" title="New chat"><i class="fa-solid fa-pen-to-square"></i></button>
+        <a href="settings.html" class="text-xl" title="Settings"><i class="fa-solid fa-bars"></i></a>
+      </div>
+    </div>
+  </header>
 
-<!-- Chat Messages -->
-<main id="chat-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 max-w-3xl mx-auto w-full">
-  <!-- Example Message -->
-  <!-- Messages will load here from Firebase -->
-</main>
+  <!-- Main -->
+  <main class="max-w-3xl mx-auto w-full flex-1 flex flex-col" style="min-height: calc(100vh - 160px);">
 
-<!-- Chat Input -->
-<form id="chat-form" class="border-t bg-white flex items-center p-3 max-w-3xl mx-auto w-full">
-  <input type="text" id="chat-input" placeholder="Type a message..." 
-         class="flex-1 p-2 text-sm outline-none bg-gray-100 rounded-full" />
-  <button type="submit" class="ml-3 text-rose-500 text-xl">
-    <i class="fa-solid fa-paper-plane"></i>
-  </button>
-</form>
+    <!-- Inbox -->
+    <section id="inbox-view" class="flex-1 overflow-y-auto bg-white">
+      <div id="chat-list" class="divide-y"></div>
+      <div id="no-chats" class="p-6 text-center text-sm text-gray-500">No conversations yet. Tap + to start a chat with a friend.</div>
+    </section>
 
-<!-- Bottom Navigation -->
-<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-  <div class="w-full max-w-3xl px-4">
-    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
-      <a href="index.html" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></a>
-      <a href="search.html" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></a>
-      <a href="post.html" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></a>
-      <a href="chat.html" class="text-2xl text-gray-700"><i class="fa-regular fa-paper-plane"></i></a>
-      <a href="profile.html" class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></a>
+    <!-- Conversation -->
+    <section id="conversation-view" class="flex-1 flex flex-col conversation-hidden bg-white">
+      <div id="conversation-header" class="flex items-center gap-3 px-4 py-3 border-b">
+        <img id="conv-avatar" class="chat-avatar" src="" alt="avatar" />
+        <div class="flex-1">
+          <div id="conv-name" class="font-semibold"></div>
+          <div id="conv-sub" class="text-xs text-gray-500"></div>
+        </div>
+      </div>
+
+      <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white"></div>
+
+      <form id="send-form" class="p-3 border-t bg-white flex items-center gap-3">
+        <input id="message-input" type="text" placeholder="Message" class="flex-1 p-2 border rounded-full text-sm outline-none" />
+        <button type="submit" class="text-rose-500 text-2xl"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+    </section>
+  </main>
+
+  <!-- New Chat Modal -->
+  <div id="new-chat-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <div class="p-4 border-b flex items-center justify-between">
+        <strong>New Chat</strong>
+        <button id="close-new-chat" class="text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-4">
+        <input id="friend-search" placeholder="Search friends..." class="w-full p-2 border rounded-lg mb-3" />
+        <div id="friends-list" class="divide-y max-h-64 overflow-y-auto"></div>
+        <p class="text-xs text-gray-500 mt-3">Only users in your friends list are shown here.</p>
+      </div>
     </div>
   </div>
-</nav>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <!-- Bottom Navigation (same style as app) -->
+  <nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+    <div class="w-full max-w-3xl px-4">
+      <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+        <a href="index.html" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></a>
+        <a href="search.html" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></a>
+        <a href="post.html" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></a>
+        <a href="chat.html" class="text-2xl text-gray-700"><i class="fa-regular fa-paper-plane"></i></a>
+        <a href="profile.html" class="text-2xl text-gray-700">
+          <img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/>
+        </a>
+      </div>
+    </div>
+  </nav>
 
-<script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
+  <script>
+  /***** CONFIG (your project values) *****/
   const firebaseConfig = {
     apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
     authDomain: "rivo-bea46.firebaseapp.com",
@@ -62,54 +122,240 @@
     appId: "1:9253016287:web:f584476c79e78215f40f6a",
     measurementId: "G-RY85VPHXVP"
   };
-
   firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
   const db = firebase.database();
 
+  /***** STATE *****/
   let currentUser = null;
+  let currentChatId = null;
+  let currentOtherUid = null;
+  let messagesListenerRef = null;
 
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) {
-      window.location.href = "signin.html";
-    } else {
-      currentUser = user;
-      loadMessages();
+  /***** ELEMENTS *****/
+  const chatListEl = document.getElementById('chat-list');
+  const noChatsEl = document.getElementById('no-chats');
+  const inboxView = document.getElementById('inbox-view');
+  const convView = document.getElementById('conversation-view');
+  const inboxBackBtn = document.getElementById('inbox-back');
+  const headerTitle = document.getElementById('header-title');
+
+  const messagesEl = document.getElementById('messages');
+  const convName = document.getElementById('conv-name');
+  const convAvatar = document.getElementById('conv-avatar');
+  const convSub = document.getElementById('conv-sub');
+  const messageForm = document.getElementById('send-form');
+  const messageInput = document.getElementById('message-input');
+
+  const newChatBtn = document.getElementById('new-chat-btn');
+  const newChatModal = document.getElementById('new-chat-modal');
+  const closeNewChat = document.getElementById('close-new-chat');
+  const friendsListEl = document.getElementById('friends-list');
+  const friendSearchEl = document.getElementById('friend-search');
+
+  /***** HELPERS *****/
+  function makeChatId(a,b){ return (a < b) ? `${a}_${b}` : `${b}_${a}`; }
+  function formatTime(ts){ const d = new Date(ts); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+
+  /***** AUTH CHECK *****/
+  auth.onAuthStateChanged(user => {
+    if(!user){
+      window.location.href = 'signin.html';
+      return;
     }
+    currentUser = user;
+    loadInbox();
   });
 
-  // Load messages
-  function loadMessages() {
-    const chatContainer = document.getElementById("chat-container");
-    db.ref("messages").on("child_added", snapshot => {
-      const msg = snapshot.val();
-      const msgEl = document.createElement("div");
-      msgEl.className = msg.uid === currentUser.uid 
-        ? "text-right"
-        : "text-left";
-      msgEl.innerHTML = `
-        <div class="inline-block px-4 py-2 rounded-lg ${msg.uid === currentUser.uid ? 'bg-rose-500 text-white' : 'bg-gray-200 text-gray-800'} max-w-[75%]">
-          ${msg.text}
-        </div>
-      `;
-      chatContainer.appendChild(msgEl);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+  /***** LOAD INBOX *****/
+  function loadInbox(){
+    const userChatsRef = db.ref(`userChats/${currentUser.uid}`);
+    userChatsRef.on('value', snap => {
+      chatListEl.innerHTML = '';
+      const entries = [];
+      snap.forEach(child => {
+        const meta = child.val();
+        entries.push({ chatId: child.key, meta });
+      });
+      // sort descending by lastMessageTime
+      entries.sort((a,b) => (b.meta.lastMessageTime || 0) - (a.meta.lastMessageTime || 0));
+      let hasChats = false;
+      entries.forEach(entry => {
+        hasChats = true;
+        const chatId = entry.chatId;
+        const otherUid = entry.meta.with;
+        db.ref(`users/${otherUid}`).once('value').then(uSnap => {
+          const other = uSnap.val() || {};
+          const div = document.createElement('div');
+          div.className = 'chat-row';
+          div.innerHTML = `
+            <img src="${other.avatar || 'https://i.pravatar.cc/100?u=' + otherUid}" class="chat-avatar" />
+            <div style="flex:1; min-width:0;">
+              <div class="flex justify-between items-center">
+                <div class="truncate-1 font-semibold">${other.fullName || other.username || 'User'}</div>
+                <div class="text-xs text-gray-400 ml-2">${entry.meta.lastMessageTime ? formatTime(entry.meta.lastMessageTime) : ''}</div>
+              </div>
+              <div class="text-xs text-gray-500 truncate-1">${entry.meta.lastMessage || ''}</div>
+            </div>
+          `;
+          div.onclick = () => openConversation(chatId, otherUid);
+          chatListEl.appendChild(div);
+        });
+      });
+      noChatsEl.style.display = hasChats ? 'none' : 'block';
     });
   }
 
-  // Send message
-  document.getElementById("chat-form").addEventListener("submit", e => {
-    e.preventDefault();
-    const text = document.getElementById("chat-input").value.trim();
-    if (text) {
-      db.ref("messages").push({
-        uid: currentUser.uid,
-        text: text,
-        timestamp: Date.now()
-      });
-      document.getElementById("chat-input").value = "";
-    }
-  });
-</script>
+  /***** OPEN CONVERSATION *****/
+  function openConversation(chatId, otherUid){
+    currentChatId = chatId;
+    currentOtherUid = otherUid;
 
+    // UI
+    inboxView.classList.add('inbox-hidden');
+    convView.classList.remove('conversation-hidden');
+    inboxBackBtn.classList.remove('hidden');
+    headerTitle.textContent = 'Conversation';
+
+    // load other user info
+    db.ref(`users/${otherUid}`).once('value').then(snap=>{
+      const u = snap.val() || {};
+      convName.textContent = u.fullName || u.username || 'User';
+      convAvatar.src = u.avatar || `https://i.pravatar.cc/100?u=${otherUid}`;
+      convSub.textContent = u.username ? `@${u.username}` : '';
+    });
+
+    // detach previous listener
+    if(messagesListenerRef) messagesListenerRef.off && messagesListenerRef.off();
+
+    // listen messages
+    const msgsRef = db.ref(`chats/${chatId}/messages`);
+    messagesEl.innerHTML = '';
+    msgsRef.on('value', snap => {
+      messagesEl.innerHTML = '';
+      const arr = [];
+      snap.forEach(child => arr.push(child.val()));
+      // sort by time
+      arr.sort((a,b) => (a.time||0) - (b.time||0));
+      arr.forEach(m => {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.width = '100%';
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.textContent = m.text;
+        if(m.sender === currentUser.uid){
+          bubble.classList.add('sent');
+          wrapper.style.justifyContent = 'flex-end';
+        } else {
+          bubble.classList.add('received');
+          wrapper.style.justifyContent = 'flex-start';
+        }
+        wrapper.appendChild(bubble);
+        messagesEl.appendChild(wrapper);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+    messagesListenerRef = msgsRef;
+  }
+
+  /***** BACK TO INBOX *****/
+  inboxBackBtn.addEventListener('click', () => {
+    convView.classList.add('conversation-hidden');
+    inboxView.classList.remove('inbox-hidden');
+    inboxBackBtn.classList.add('hidden');
+    headerTitle.textContent = 'Messages';
+    if(messagesListenerRef) messagesListenerRef.off && messagesListenerRef.off();
+    messagesEl.innerHTML = '';
+  });
+
+  /***** SEND MESSAGE *****/
+  messageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = messageInput.value.trim();
+    if(!text || !currentChatId) return;
+    const msg = { sender: currentUser.uid, text, time: Date.now() };
+    const newMsgRef = db.ref(`chats/${currentChatId}/messages`).push();
+    newMsgRef.set(msg).then(()=> {
+      // Update userChats metadata for participants
+      db.ref(`chats/${currentChatId}/participants`).once('value').then(psnap => {
+        psnap.forEach(uSnap => {
+          const uid = uSnap.key;
+          db.ref(`userChats/${uid}/${currentChatId}`).update({
+            lastMessage: msg.text,
+            lastMessageTime: msg.time,
+            with: (uid === currentUser.uid) ? currentOtherUid : currentUser.uid
+          });
+        });
+      });
+    });
+    messageInput.value = '';
+  });
+
+  /***** NEW CHAT MODAL *****/
+  newChatBtn.addEventListener('click', () => {
+    newChatModal.style.display = 'flex';
+    loadFriends();
+  });
+  closeNewChat.addEventListener('click', ()=> newChatModal.style.display = 'none');
+
+  async function loadFriends(){
+    friendsListEl.innerHTML = '<div class="p-3 text-sm text-gray-500">Loading friends...</div>';
+    const friendsSnap = await db.ref(`users/${currentUser.uid}/friends`).once('value');
+    const friends = friendsSnap.val() || {};
+    if(!Object.keys(friends).length){
+      friendsListEl.innerHTML = '<div class="p-3 text-sm text-gray-500">No friends yet.</div>';
+      return;
+    }
+    friendsListEl.innerHTML = '';
+    for(const friendUid of Object.keys(friends)){
+      const uSnap = await db.ref(`users/${friendUid}`).once('value');
+      const user = uSnap.val() || {};
+      const item = document.createElement('div');
+      item.className = 'flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100';
+      item.innerHTML = `
+        <img src="${user.avatar || 'https://i.pravatar.cc/100?u=' + friendUid}" class="w-10 h-10 rounded-full object-cover" />
+        <div style="flex:1; min-width:0;">
+          <div class="font-semibold truncate-1">${user.fullName || user.username || 'User'}</div>
+          <div class="text-xs text-gray-500 truncate-1">@${user.username || ''}</div>
+        </div>
+      `;
+      item.onclick = () => {
+        startOrOpenChatWith(friendUid, user);
+        newChatModal.style.display = 'none';
+      };
+      friendsListEl.appendChild(item);
+    }
+  }
+
+  async function startOrOpenChatWith(otherUid, otherUserData){
+    const chatId = makeChatId(currentUser.uid, otherUid);
+    const chatRef = db.ref(`chats/${chatId}`);
+    const chatSnap = await chatRef.once('value');
+    if(!chatSnap.exists()){
+      await chatRef.set({ participants: { [currentUser.uid]: true, [otherUid]: true }});
+      const metaA = { with: otherUid, lastMessage: '', lastMessageTime: Date.now() };
+      const metaB = { with: currentUser.uid, lastMessage: '', lastMessageTime: Date.now() };
+      await db.ref(`userChats/${currentUser.uid}/${chatId}`).set(metaA);
+      await db.ref(`userChats/${otherUid}/${chatId}`).set(metaB);
+    }
+    openConversation(chatId, otherUid);
+  }
+
+  /***** FRIEND SEARCH FILTER *****/
+  friendSearchEl.addEventListener('input', (e) => {
+    const term = e.target.value.trim().toLowerCase();
+    Array.from(friendsListEl.children).forEach(item => {
+      const name = item.textContent.toLowerCase();
+      item.style.display = name.includes(term) ? '' : 'none';
+    });
+  });
+
+  /***** CLEANUP ON UNLOAD *****/
+  window.addEventListener('beforeunload', () => {
+    if(messagesListenerRef) messagesListenerRef.off && messagesListenerRef.off();
+    db.ref(`userChats/${currentUser?.uid}`).off();
+  });
+  </script>
 </body>
 </html>
