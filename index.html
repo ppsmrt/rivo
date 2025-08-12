@@ -11,15 +11,44 @@
 <body class="min-h-screen flex flex-col text-gray-900 bg-gray-50">
 
 <!-- Header -->
-<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+<header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
   <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+    <!-- Left Section -->
     <div class="flex items-center gap-3">
       <i class="fa-solid fa-camera grad-icon text-2xl"></i>
       <h1 class="text-xl font-semibold">Rivo</h1>
     </div>
+
+    <!-- Right Section: Dark/Light Toggle -->
+    <button id="theme-toggle" class="text-gray-700 dark:text-gray-200 text-2xl focus:outline-none">
+      <i id="theme-icon" class="fa-solid fa-moon"></i>
+    </button>
   </div>
 </header>
 
+<script>
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+
+  // Check saved theme or default to light
+  if (localStorage.theme === 'dark' || 
+      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+    themeIcon.classList.replace('fa-moon', 'fa-sun');
+  }
+
+  themeToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const darkMode = document.documentElement.classList.contains('dark');
+
+    // Switch icon
+    themeIcon.classList.toggle('fa-moon', !darkMode);
+    themeIcon.classList.toggle('fa-sun', darkMode);
+
+    // Save preference
+    localStorage.theme = darkMode ? 'dark' : 'light';
+  });
+</script>
 <!-- Pages -->
 <main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
 
