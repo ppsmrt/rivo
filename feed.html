@@ -1,63 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Feed</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rivo Chat - Chatting Website</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <style>
-    body {
-      background-color: #f9fafb;
-      font-family: 'Inter', sans-serif;
+    :root{
+      --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);
     }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
+    body{
+      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    .grad-icon{
+      background: var(--ig-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-glass{
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.7);
     }
   </style>
 </head>
-<body class="fade-in">
+<body class="min-h-screen flex flex-col text-gray-900">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between p-4 bg-white shadow">
-    <h1 class="text-xl font-bold">Feed</h1>
-    <div class="flex gap-4">
-      <button class="text-violet-600"><i class="fa-solid fa-bell"></i></button>
-      <button class="text-violet-600"><i class="fa-solid fa-user"></i></button>
+<!-- Header -->
+<header id="header" class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-camera grad-icon text-2xl"></i>
+      <h1 id="header-title" class="text-xl font-semibold">Rivo</h1>
     </div>
-  </header>
-
-  <!-- Feed Posts -->
-  <div id="feedContainer" class="p-4 space-y-4">
-    <!-- Example Post -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div class="flex items-center p-4 gap-3">
-        <img src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full" alt="User">
-        <div>
-          <p class="font-semibold">John Doe</p>
-          <p class="text-sm text-gray-500">2 hours ago</p>
-        </div>
-      </div>
-      <img src="https://via.placeholder.com/600x300" alt="Post" class="w-full">
-      <div class="p-4 space-y-2">
-        <div class="flex gap-4 text-gray-600">
-          <button class="hover:text-violet-600"><i class="fa-regular fa-heart"></i></button>
-          <button class="hover:text-violet-600"><i class="fa-regular fa-comment"></i></button>
-          <button class="hover:text-violet-600"><i class="fa-solid fa-share"></i></button>
-        </div>
-        <p class="text-gray-800"><span class="font-semibold">John Doe</span> Loving this new project! #coding #fun</p>
-      </div>
+    <div class="flex items-center gap-4 text-xl text-gray-700">
+      <button><i class="fa-regular fa-comment-dots"></i></button>
     </div>
   </div>
+</header>
 
-  <!-- Firebase & Central JS -->
-  <script src="assets/js/firebase-init.js"></script>
-  <script src="assets/js/social-actions.js"></script>
-  <script src="assets/js/feed.js"></script>
+<!-- Pages -->
+<main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
+
+  <!-- Feed -->
+  <section id="page-home"></section>
+
+  <!-- Search -->
+  <section id="page-search" class="hidden space-y-4">
+    <input id="search-input" type="text" placeholder="Search" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-rose-200"/>
+    <div id="search-results" class="space-y-3"></div>
+  </section>
+
+  <!-- Explore -->
+  <section id="page-explore" class="hidden grid grid-cols-3 gap-1">
+    <img src="https://source.unsplash.com/random/400x400?sig=1" class="w-full h-32 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=2" class="w-full h-32 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=3" class="w-full h-32 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=4" class="w-full h-32 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=5" class="w-full h-32 object-cover"/>
+    <img src="https://source.unsplash.com/random/400x400?sig=6" class="w-full h-32 object-cover"/>
+  </section>
+
+  <!-- Profile -->
+  <section id="page-profile" class="hidden">
+    <div class="flex items-center gap-4 mb-4">
+      <img src="https://i.pravatar.cc/150?u=you" class="w-20 h-20 rounded-full"/>
+      <div>
+        <p class="text-lg font-semibold">your_username</p>
+        <p class="text-gray-500 text-sm">Bio goes here...</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-1">
+      <img src="https://source.unsplash.com/random/400x400?sig=7" class="w-full h-32 object-cover"/>
+      <img src="https://source.unsplash.com/random/400x400?sig=8" class="w-full h-32 object-cover"/>
+      <img src="https://source.unsplash.com/random/400x400?sig=9" class="w-full h-32 object-cover"/>
+    </div>
+  </section>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+  <div class="w-full max-w-3xl px-4">
+    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+      <button data-page="home" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></button>
+      <button data-page="search" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button data-page="explore" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></button>
+      <button class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></button>
+      <button data-page="profile" class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></button>
+    </div>
+  </div>
+</nav>
+
+<script>
+// Posts for feed
+const posts = [
+  {id:'post1', user:'anbu', avatar:'https://i.pravatar.cc/150?img=32', location:'Chennai', img:'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=1200&q=80', likes:128, caption:'Exploring the coastlines.', time:'2h'},
+  {id:'post2', user:'meena', avatar:'https://i.pravatar.cc/150?img=45', location:'Mumbai', img:'https://images.unsplash.com/photo-1520962918287-7448c2878f65?w=1200&q=80', likes:201, caption:'City vibes.', time:'4h'},
+  {id:'post3', user:'raja', avatar:'https://i.pravatar.cc/150?img=12', location:'Delhi', img:'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1200&q=80', likes:340, caption:'Historic walks.', time:'1d'}
+];
+
+// Feed render
+const feed = document.getElementById('page-home');
+posts.forEach(p => {
+  const art = document.createElement('article');
+  art.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
+  art.innerHTML = `
+    <div class="flex items-center gap-3 p-4">
+      <img src="${p.avatar}" class="w-10 h-10 rounded-full"/>
+      <div class="flex-1">
+        <p class="font-semibold text-sm">${p.user}</p>
+        <p class="text-xs text-gray-500">${p.location}</p>
+      </div>
+    </div>
+    <img src="${p.img}" class="w-full"/>
+    <div class="px-4 py-3">
+      <p class="font-semibold text-sm">${p.likes} likes</p>
+      <p class="text-sm mt-1"><span class="font-semibold">${p.user}</span> ${p.caption}</p>
+      <p class="text-xs text-gray-400 mt-2">${p.time}</p>
+    </div>
+  `;
+  feed.appendChild(art);
+});
+
+// Search data
+const users = [
+  {name: 'anbu', avatar: 'https://i.pravatar.cc/150?img=32', location: 'Chennai'},
+  {name: 'meena', avatar: 'https://i.pravatar.cc/150?img=45', location: 'Mumbai'},
+  {name: 'raja', avatar: 'https://i.pravatar.cc/150?img=12', location: 'Delhi'},
+  {name: 'sara', avatar: 'https://i.pravatar.cc/150?img=18', location: 'Pune'},
+  {name: 'arun', avatar: 'https://i.pravatar.cc/150?img=5', location: 'Kochi'}
+];
+
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase();
+  searchResults.innerHTML = '';
+  if(query.trim() === '') return;
+
+  const filtered = users.filter(u => u.name.includes(query) || u.location.toLowerCase().includes(query));
+  if(filtered.length === 0){
+    searchResults.innerHTML = '<p class="text-gray-500 text-sm">No results found</p>';
+  } else {
+    filtered.forEach(u => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm';
+      row.innerHTML = `
+        <img src="${u.avatar}" class="w-10 h-10 rounded-full"/>
+        <div>
+          <p class="font-semibold text-sm">${u.name}</p>
+          <p class="text-xs text-gray-500">${u.location}</p>
+        </div>
+      `;
+      searchResults.appendChild(row);
+    });
+  }
+});
+
+// Page switching
+const pages = {
+  home: document.getElementById('page-home'),
+  search: document.getElementById('page-search'),
+  explore: document.getElementById('page-explore'),
+  profile: document.getElementById('page-profile')
+};
+const headerTitle = document.getElementById('header-title');
+
+document.querySelectorAll('nav button[data-page]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+    Object.values(pages).forEach(sec => sec.classList.add('hidden'));
+    pages[page].classList.remove('hidden');
+    headerTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+  });
+});
+</script>
 
 </body>
 </html>
