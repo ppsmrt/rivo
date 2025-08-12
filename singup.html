@@ -1,55 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rivo Chat - Sign Up</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up - Rivo</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      margin-top: 40px;
+    }
+  </style>
 </head>
-<body class="auth-page">
+<body class="bg-gray-50 text-gray-900">
 
-<section class="auth-container">
-  <img src="assets/logo.png" class="auth-logo">
-  <h1>Sign Up</h1>
+<!-- Header -->
+<header class="app-header text-center">Create Your Account</header>
 
-  <input type="text" id="signupName" placeholder="Full Name" required>
-  <input type="email" id="signupEmail" placeholder="Email" required>
-  <input type="password" id="signupPassword" placeholder="Password" required>
-  
-  <button id="signupBtn">Sign Up</button>
+<!-- Signup Form -->
+<div class="auth-container bg-white p-6 rounded-xl shadow-md">
+  <form id="signup-form" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium">Full Name</label>
+      <input type="text" id="fullname" class="w-full p-2 border rounded-lg" placeholder="John Doe" required>
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Username</label>
+      <input type="text" id="username" class="w-full p-2 border rounded-lg" placeholder="johndoe" required>
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Email</label>
+      <input type="email" id="email" class="w-full p-2 border rounded-lg" placeholder="you@example.com" required>
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Password</label>
+      <input type="password" id="password" class="w-full p-2 border rounded-lg" placeholder="********" required>
+    </div>
+    <button type="submit" class="w-full py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg">Sign Up</button>
+  </form>
 
-  <p>Already have an account? <a href="login.html">Login</a></p>
-</section>
+  <p class="text-center text-sm text-gray-500 mt-4">
+    Already have an account? <a href="signin.html" class="text-rose-500 font-semibold">Log in</a>
+  </p>
+</div>
 
-<script type="module">
-import { auth, db } from "./js/firebase-config.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
 
-document.getElementById("signupBtn").addEventListener("click", () => {
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
+    authDomain: "rivo-bea46.firebaseapp.com",
+    databaseURL: "https://rivo-bea46-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rivo-bea46",
+    storageBucket: "rivo-bea46.firebasestorage.app",
+    messagingSenderId: "9253016287",
+    appId: "1:9253016287:web:f584476c79e78215f40f6a",
+    measurementId: "G-RY85VPHXVP"
+  };
 
-  if (!name || !email || !password) {
-    alert("Please fill all fields");
-    return;
-  }
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-      const uid = userCredential.user.uid;
-      set(ref(db, `users/${uid}`), {
-        name,
-        bio: "Hello! I’m using Rivo Chat.",
-        avatar: "assets/icons/default.png"
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fullName = document.getElementById("fullname").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      const userCred = await auth.createUserWithEmailAndPassword(email, password);
+      const uid = userCred.user.uid;
+
+      await db.ref("users/" + uid).set({
+        fullName,
+        username,
+        email,
+        dateRegistered: new Date().toISOString()
       });
+
+      alert("Account created successfully!");
       window.location.href = "index.html";
-    })
-    .catch(err => {
-      alert(err.message);
-    });
-});
+    } catch (error) {
+      alert(error.message);
+    }
+  });
 </script>
 
 </body>
