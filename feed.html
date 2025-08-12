@@ -1,404 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rivo Chat — Demo</title>
-
-  <!-- Tailwind + Font Awesome -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
-  <style>
-    :root{ --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%); }
-    body{ background: linear-gradient(180deg,#fafafa 0%,#fff 100%); }
-    .grad-icon{ background: var(--ig-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .nav-glass{ backdrop-filter: blur(6px); background: rgba(255,255,255,0.75); }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rivo - Instagram Clone</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+  :root{
+    --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);
+  }
+  .grad-icon{
+    background: var(--ig-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .nav-glass{
+    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,0.7);
+  }
+  .page{ display:none; }
+  .page.active{ display:block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
+</style>
 </head>
-<body class="min-h-screen flex flex-col text-gray-900">
+<body class="min-h-screen flex flex-col text-gray-900 bg-gray-50">
 
-  <!-- Header -->
-  <header id="header" class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-    <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
-      <div class="flex items-center gap-3">
-        <i class="fa-solid fa-camera grad-icon text-2xl"></i>
-        <h1 id="header-title" class="text-xl font-semibold">Rivo</h1>
-      </div>
-      <div class="flex items-center gap-4 text-xl text-gray-700">
-        <button title="messages"><i class="fa-regular fa-comment-dots"></i></button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main pages -->
-  <main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
-    <!-- Home Feed -->
-    <section id="page-home" class="space-y-6"></section>
-
-    <!-- Search -->
-    <section id="page-search" class="hidden space-y-4">
-      <input id="search-input" type="text" placeholder="Search users or locations" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-rose-200"/>
-      <div id="search-results" class="space-y-3"></div>
-    </section>
-
-    <!-- Explore -->
-    <section id="page-explore" class="hidden grid grid-cols-3 gap-1">
-      <!-- placeholder tiles -->
-      <img src="https://source.unsplash.com/random/400x400?sig=1" class="w-full h-32 object-cover"/>
-      <img src="https://source.unsplash.com/random/400x400?sig=2" class="w-full h-32 object-cover"/>
-      <img src="https://source.unsplash.com/random/400x400?sig=3" class="w-full h-32 object-cover"/>
-      <img src="https://source.unsplash.com/random/400x400?sig=4" class="w-full h-32 object-cover"/>
-      <img src="https://source.unsplash.com/random/400x400?sig=5" class="w-full h-32 object-cover"/>
-      <img src="https://source.unsplash.com/random/400x400?sig=6" class="w-full h-32 object-cover"/>
-    </section>
-
-    <!-- Profile -->
-    <section id="page-profile" class="hidden">
-      <div id="profile-header" class="flex items-center gap-4 mb-4">
-        <img id="profile-avatar" src="https://i.pravatar.cc/150?u=you" class="w-20 h-20 rounded-full object-cover"/>
-        <div>
-          <p id="profile-name" class="text-lg font-semibold">your_username</p>
-          <p id="profile-bio" class="text-gray-500 text-sm">Bio goes here...</p>
-        </div>
-      </div>
-      <div id="profile-grid" class="grid grid-cols-3 gap-1"></div>
-    </section>
-  </main>
-
-  <!-- Add Post Modal (floating) -->
-  <div id="add-post-modal" class="fixed inset-0 hidden items-center justify-center z-50">
-    <div id="add-post-overlay" class="absolute inset-0 bg-black/50"></div>
-
-    <div class="relative bg-white w-full max-w-md mx-4 rounded-xl shadow-lg p-5 z-10">
-      <button id="close-add-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
-        <i class="fa-solid fa-xmark text-xl"></i>
-      </button>
-      <h2 class="text-lg font-semibold mb-3">Create new post</h2>
-
-      <label class="block mb-2 text-xs text-gray-600">Choose photo</label>
-      <input id="post-image" type="file" accept="image/*" class="block w-full border p-2 rounded-lg mb-3"/>
-
-      <div id="preview-wrap" class="mb-3 hidden">
-        <img id="post-preview" class="w-full h-48 object-cover rounded-md"/>
-      </div>
-
-      <textarea id="post-caption" placeholder="Write a caption..." class="w-full p-3 border rounded-lg mb-3"></textarea>
-      <button id="upload-btn" class="bg-rose-500 text-white px-4 py-2 rounded-lg w-full">Post</button>
-      <p id="upload-status" class="text-sm text-gray-500 mt-2"></p>
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-camera grad-icon text-2xl"></i>
+      <h1 class="text-xl font-semibold">Rivo</h1>
     </div>
   </div>
+</header>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-    <div class="w-full max-w-3xl px-4">
-      <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
-        <button data-page="home" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></button>
-        <button data-page="search" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <!-- plus opens modal -->
-        <button id="open-add-btn" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></button>
-        <button data-page="explore" class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></button>
-        <button data-page="profile" class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></button>
+<!-- Pages -->
+<main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
+
+  <!-- Home Feed -->
+  <section id="page-home" class="page active">
+    <div id="feed" class="space-y-6"></div>
+  </section>
+
+  <!-- Search Page -->
+  <section id="page-search" class="page">
+    <div class="mb-4">
+      <input id="searchInput" type="text" placeholder="Search users or posts..."
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500" />
+    </div>
+    <div id="searchResults" class="grid grid-cols-3 gap-2"></div>
+  </section>
+
+  <!-- Add Post Page -->
+  <section id="page-post" class="page">
+    <form id="addPostForm" class="space-y-4">
+      <input type="file" id="postImage" accept="image/*" class="block w-full" required />
+      <input type="text" id="postCaption" placeholder="Write a caption..."
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg" required />
+      <button type="submit"
+        class="w-full bg-rose-500 text-white py-2 rounded-lg font-semibold">Upload Post</button>
+    </form>
+    <p id="postStatus" class="mt-3 text-sm text-gray-500"></p>
+  </section>
+
+  <!-- Profile Page -->
+  <section id="page-profile" class="page">
+    <div class="flex items-center gap-4 mb-6">
+      <img src="https://i.pravatar.cc/100?u=me" class="w-20 h-20 rounded-full" />
+      <div>
+        <p class="font-semibold text-lg">My Username</p>
+        <p class="text-gray-500 text-sm">View and edit your profile</p>
       </div>
     </div>
-  </nav>
+    <div id="profilePosts" class="grid grid-cols-3 gap-1"></div>
+  </section>
 
-  <!-- Firebase SDK (compat style) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"></script>
+  <!-- Settings Page -->
+  <section id="page-settings" class="page">
+    <div class="space-y-4">
+      <button class="w-full text-left px-4 py-2 bg-white rounded-lg shadow">Account Settings</button>
+      <button class="w-full text-left px-4 py-2 bg-white rounded-lg shadow">Privacy</button>
+      <button class="w-full text-left px-4 py-2 bg-white rounded-lg shadow">Log Out</button>
+    </div>
+  </section>
 
-  <script>
-    /***********************
-     * Replace with YOUR Firebase config
-     * Get this from Firebase Console -> Project settings
-     ***********************/
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
-    };
+</main>
 
-    // Initialize Firebase (namespaced style used here)
-    firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const db = firebase.database();
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+  <div class="w-full max-w-3xl px-4">
+    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+      <button data-page="home" class="text-2xl"><i class="fa-solid fa-house"></i></button>
+      <button data-page="search" class="text-2xl"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button data-page="post" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></button>
+      <button data-page="profile" class="text-2xl"><i class="fa-regular fa-user"></i></button>
+      <button data-page="settings" class="text-2xl"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </div>
+</nav>
 
-    /***********************
-     * Mock data (client-only initial content)
-     ***********************/
-    const seedPosts = [
-      { id:'seed1', user:'anbu', avatar:'https://i.pravatar.cc/150?img=32', location:'Chennai', img:'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=1200&q=80', likes:128, caption:'Exploring the coastlines.', time:'2h' },
-      { id:'seed2', user:'meena', avatar:'https://i.pravatar.cc/150?img=45', location:'Mumbai', img:'https://images.unsplash.com/photo-1520962918287-7448c2878f65?w=1200&q=80', likes:201, caption:'City vibes.', time:'4h' },
-      { id:'seed3', user:'raja', avatar:'https://i.pravatar.cc/150?img=12', location:'Delhi', img:'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=1200&q=80', likes:340, caption:'Historic walks.', time:'1d' }
-    ];
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
+    authDomain: "rivo-bea46.firebaseapp.com",
+    databaseURL: "https://rivo-bea46-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rivo-bea46",
+    storageBucket: "rivo-bea46.firebasestorage.app",
+    messagingSenderId: "9253016287",
+    appId: "1:9253016287:web:f584476c79e78215f40f6a",
+    measurementId: "G-RY85VPHXVP"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const storage = firebase.storage();
 
-    const users = [
-      { name: 'anbu', avatar: 'https://i.pravatar.cc/150?img=32', location: 'Chennai', bio: 'Beach lover 🌊', posts: ['?sig=21','?sig=22','?sig=23'] },
-      { name: 'meena', avatar: 'https://i.pravatar.cc/150?img=45', location: 'Mumbai', bio: 'City explorer 🏙️', posts: ['?sig=24','?sig=25','?sig=26'] },
-      { name: 'raja', avatar: 'https://i.pravatar.cc/150?img=12', location: 'Delhi', bio: 'History buff 📜', posts: ['?sig=27','?sig=28','?sig=29'] },
-      { name: 'sara', avatar: 'https://i.pravatar.cc/150?img=18', location: 'Pune', bio: 'Coffee + books ☕📚', posts: ['?sig=30','?sig=31','?sig=32'] },
-      { name: 'arun', avatar: 'https://i.pravatar.cc/150?img=5', location: 'Kochi', bio: 'Traveler & foodie 🍜', posts: ['?sig=33','?sig=34','?sig=35'] }
-    ];
-
-    /***********************
-     * DOM refs & utilities
-     ***********************/
-    const pages = {
-      home: document.getElementById('page-home'),
-      search: document.getElementById('page-search'),
-      explore: document.getElementById('page-explore'),
-      profile: document.getElementById('page-profile')
-    };
-    const headerTitle = document.getElementById('header-title');
-
-    function switchPage(page) {
-      Object.values(pages).forEach(sec => sec.classList.add('hidden'));
-      if (pages[page]) pages[page].classList.remove('hidden');
-      headerTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1);
-    }
-
-    // Wire bottom nav page buttons (data-page)
-    document.querySelectorAll('nav button[data-page]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const page = btn.dataset.page;
-        switchPage(page);
-      });
+  // Nav switching
+  const pages = document.querySelectorAll('.page');
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = 'page-' + btn.dataset.page;
+      pages.forEach(p => p.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  });
 
-    // Plus button opens modal
-    const openAddBtn = document.getElementById('open-add-btn');
-    const addPostModal = document.getElementById('add-post-modal');
-    const addPostOverlay = document.getElementById('add-post-overlay');
-    const closeAddBtn = document.getElementById('close-add-btn');
-
-    openAddBtn.addEventListener('click', () => {
-      addPostModal.classList.remove('hidden'); addPostModal.classList.add('flex');
-    });
-    [addPostOverlay, closeAddBtn].forEach(el => el.addEventListener('click', () => {
-      addPostModal.classList.add('hidden'); addPostModal.classList.remove('flex');
-      clearAddModal();
-    }));
-
-    /***********************
-     * Render helpers
-     ***********************/
-    const feedEl = document.getElementById('page-home');
-
-    function createPostElement(p) {
+  // Home feed loader
+  function loadFeed(){
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    db.ref('posts').limitToLast(10).on('child_added', snap => {
+      const p = snap.val();
       const art = document.createElement('article');
       art.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
-
       art.innerHTML = `
         <div class="flex items-center gap-3 p-4">
-          <img src="${p.avatar}" class="w-10 h-10 rounded-full object-cover user-avatar cursor-pointer"/>
+          <img src="${p.avatar}" class="w-10 h-10 rounded-full"/>
           <div class="flex-1">
-            <p class="font-semibold text-sm user-name cursor-pointer">${escapeHtml(p.user)}</p>
+            <p class="font-semibold text-sm">${p.user}</p>
             <p class="text-xs text-gray-500">${p.location || ''}</p>
           </div>
         </div>
-        <img src="${p.img}" class="w-full object-cover" />
+        <img src="${p.image}" class="w-full"/>
         <div class="px-4 py-3">
-          <p class="font-semibold text-sm">${p.likes ?? 0} likes</p>
-          <p class="text-sm mt-1"><span class="font-semibold">${escapeHtml(p.user)}</span> ${escapeHtml(p.caption)}</p>
-          <p class="text-xs text-gray-400 mt-2">${p.time || ''}</p>
+          <p class="font-semibold text-sm">${p.likes || 0} likes</p>
+          <p class="text-sm mt-1"><span class="font-semibold">${p.user}</span> ${p.caption}</p>
         </div>
       `;
+      feed.prepend(art);
+    });
+  }
+  loadFeed();
 
-      // wire username/avatar clicks
-      art.querySelectorAll('.user-name, .user-avatar').forEach(el => {
-        el.addEventListener('click', () => {
-          const u = users.find(usr => usr.name === p.user);
-          if (u) loadProfile(u);
-          else loadProfile({ name: p.user, avatar: p.avatar, bio: '', posts: [] });
-        });
-      });
+  // Add post
+  document.getElementById('addPostForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const file = document.getElementById('postImage').files[0];
+    const caption = document.getElementById('postCaption').value;
+    const status = document.getElementById('postStatus');
+    if(!file) return;
+    const ref = storage.ref('posts/' + Date.now() + '-' + file.name);
+    ref.put(file).then(snap => snap.ref.getDownloadURL()).then(url => {
+      const newPost = {
+        user: 'myusername',
+        avatar: 'https://i.pravatar.cc/150?u=me',
+        image: url,
+        caption: caption,
+        likes: 0,
+        timestamp: Date.now()
+      };
+      db.ref('posts').push(newPost);
+      status.textContent = "Post uploaded successfully!";
+      document.getElementById('addPostForm').reset();
+    }).catch(err => {
+      status.textContent = "Error uploading post: " + err.message;
+    });
+  });
 
-      return art;
-    }
-
-    function escapeHtml(s) { return (s+'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-    function prependPostToFeed(p) {
-      const el = createPostElement(p);
-      feedEl.prepend(el);
-    }
-
-    // initial seed render
-    seedPosts.forEach(p => feedEl.appendChild(createPostElement(p)));
-
-    /***********************
-     * Live search -> load profile
-     ***********************/
-    const searchInput = document.getElementById('search-input');
-    const searchResults = document.getElementById('search-results');
-
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.trim().toLowerCase();
-      searchResults.innerHTML = '';
-      if (!q) return;
-      const filtered = users.filter(u => u.name.includes(q) || u.location.toLowerCase().includes(q));
-      if (filtered.length === 0) {
-        searchResults.innerHTML = '<p class="text-gray-500 text-sm">No results found</p>';
-        return;
-      }
-      filtered.forEach(u => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition';
-        row.innerHTML = `
-          <img src="${u.avatar}" class="w-10 h-10 rounded-full"/>
-          <div>
-            <p class="font-semibold text-sm">${escapeHtml(u.name)}</p>
-            <p class="text-xs text-gray-500">${escapeHtml(u.location)}</p>
-          </div>
-        `;
-        row.addEventListener('click', () => loadProfile(u));
-        searchResults.appendChild(row);
+  // Search
+  document.getElementById('searchInput').addEventListener('input', e => {
+    const term = e.target.value.toLowerCase();
+    const results = document.getElementById('searchResults');
+    results.innerHTML = '';
+    db.ref('posts').once('value', snap => {
+      snap.forEach(child => {
+        const post = child.val();
+        if(post.caption.toLowerCase().includes(term) || post.user.toLowerCase().includes(term)){
+          const img = document.createElement('img');
+          img.src = post.image;
+          img.className = 'w-full h-32 object-cover';
+          results.appendChild(img);
+        }
       });
     });
+  });
 
-    /***********************
-     * Profile loader (re-usable)
-     ***********************/
-    const profileAvatar = document.getElementById('profile-avatar');
-    const profileName = document.getElementById('profile-name');
-    const profileBio = document.getElementById('profile-bio');
-    const profileGrid = document.getElementById('profile-grid');
-
-    function loadProfile(user) {
-      profileAvatar.src = user.avatar || 'https://i.pravatar.cc/150?u=you';
-      profileName.textContent = user.name || 'unknown';
-      profileBio.textContent = user.bio || '';
-      profileGrid.innerHTML = '';
-      (user.posts || []).forEach(p => {
-        const img = document.createElement('img');
-        img.src = 'https://source.unsplash.com/random/400x400' + p;
-        img.className = 'w-full h-32 object-cover';
-        profileGrid.appendChild(img);
-      });
-      switchPage('profile');
-    }
-
-    /***********************
-     * Add Post: preview, compression, upload
-     ***********************/
-    const postImageInput = document.getElementById('post-image');
-    const postCaptionInput = document.getElementById('post-caption');
-    const uploadBtn = document.getElementById('upload-btn');
-    const uploadStatus = document.getElementById('upload-status');
-    const postPreview = document.getElementById('post-preview');
-    const previewWrap = document.getElementById('preview-wrap');
-
-    function clearAddModal() {
-      postImageInput.value = '';
-      postCaptionInput.value = '';
-      postPreview.src = '';
-      previewWrap.classList.add('hidden');
-      uploadStatus.textContent = '';
-    }
-
-    // show preview on select
-    postImageInput.addEventListener('change', (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) { previewWrap.classList.add('hidden'); return; }
-      const url = URL.createObjectURL(f);
-      postPreview.src = url;
-      previewWrap.classList.remove('hidden');
+  // Profile loader
+  function loadProfile(){
+    const container = document.getElementById('profilePosts');
+    container.innerHTML = '';
+    db.ref('posts').orderByChild('user').equalTo('myusername').on('child_added', snap => {
+      const post = snap.val();
+      const img = document.createElement('img');
+      img.src = post.image;
+      img.className = 'w-full h-32 object-cover';
+      container.appendChild(img);
     });
+  }
+  loadProfile();
+</script>
 
-    // compress image using canvas -> blob
-    function compressImage(file, maxWidth, maxHeight, quality) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-          const img = new Image();
-          img.onload = () => {
-            let width = img.width, height = img.height;
-            if (width > height) {
-              if (width > maxWidth) { height = Math.round(height *= maxWidth / width); width = maxWidth; }
-            } else {
-              if (height > maxHeight) { width = Math.round(width *= maxHeight / height); height = maxHeight; }
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob(blob => {
-              if (blob) resolve(blob);
-              else reject(new Error('Compression failed'));
-            }, 'image/jpeg', quality);
-          };
-          img.onerror = () => reject(new Error('Image load error'));
-          img.src = ev.target.result;
-        };
-        reader.onerror = () => reject(new Error('FileReader error'));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Upload flow: compress -> upload to Storage -> write metadata to Realtime DB
-    uploadBtn.addEventListener('click', async () => {
-      const file = postImageInput.files[0];
-      const caption = postCaptionInput.value.trim();
-      if (!file || !caption) { uploadStatus.textContent = "Select an image and write a caption."; return; }
-
-      try {
-        uploadStatus.textContent = "Compressing image...";
-        const compressed = await compressImage(file, 1080, 1080, 0.65);
-        uploadStatus.textContent = "Uploading...";
-
-        // unique filename
-        const filename = `posts/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
-        const storageRef = storage.ref().child(filename);
-
-        // upload blob
-        await storageRef.put(compressed);
-        const downloadURL = await storageRef.getDownloadURL();
-
-        // create post metadata
-        const newPost = {
-          user: "your_username", // replace with actual auth user id/name
-          avatar: "https://i.pravatar.cc/150?u=you",
-          caption: caption,
-          img: downloadURL,
-          likes: 0,
-          time: new Date().toLocaleString()
-        };
-
-        // push to Realtime DB
-        await db.ref('posts').push(newPost);
-
-        uploadStatus.textContent = "Posted!";
-        clearAddModal();
-        setTimeout(() => { addPostModal.classList.add('hidden'); addPostModal.classList.remove('flex'); uploadStatus.textContent = ''; }, 700);
-
-      } catch (err) {
-        console.error(err);
-        uploadStatus.textContent = "Upload failed. See console for details.";
-      }
-    });
-
-    /***********************
-     * Realtime listener: new posts appear instantly
-     ***********************/
-    // When a new child is added in /posts, we prepend to the feed
-    db.ref('posts').on('child_added', snapshot => {
-      const p = snapshot.val();
-      // Avoid duplicating seed posts stored locally by checking for unique img urls, but in production you would handle properly
-      prependPostToFeed(p);
-    });
-
-    /***********************
-     * Utility: On load show home
-     ***********************/
-    switchPage('home');
-
-    // Expose a small helper to load a profile from the console if needed
-    window._loadProfile = loadProfile;
-  </script>
 </body>
 </html>
