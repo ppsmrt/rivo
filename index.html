@@ -1,89 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rivo Chat - Chatting Website</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <style>
-    :root{
-      --ig-grad: linear-gradient(45deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);
-    }
-    body{
-      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
-    }
-    .grad-icon{
-      background: var(--ig-grad);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .nav-glass{
-      backdrop-filter: blur(6px);
-      background: rgba(255,255,255,0.7);
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rivo Feed</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
 </head>
-<body class="min-h-screen flex flex-col text-gray-900">
+<body>
 
-<!-- Header -->
-<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
-    <div class="flex items-center gap-3">
-      <i class="fa-solid fa-camera grad-icon text-2xl"></i>
-      <h1 class="text-xl font-semibold">Rivo</h1>
-    </div>
-    <div class="flex items-center gap-4 text-xl text-gray-700">
-      <button><i class="fa-regular fa-comment-dots"></i></button>
-    </div>
-  </div>
-</header>
+  <!-- Header -->
+  <header class="app-header">
+    <span>Rivo</span>
+  </header>
 
-<!-- Feed -->
-<main class="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6" id="feed"></main>
-
-<!-- Bottom Navigation -->
-<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-  <div class="w-full max-w-3xl px-4">
-    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
-      <button class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></button>
-      <button class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></button>
-      <button class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></button>
-      <button class="text-2xl text-gray-700"><i class="fa-regular fa-heart"></i></button>
-      <button class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></button>
-    </div>
-  </div>
-</nav>
-
-<script>
-const posts = [
-  {id:'post1', user:'anbu', avatar:'https://i.pravatar.cc/150?img=32', location:'Chennai', img:'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=1200&q=80', likes:128, caption:'Exploring the coastlines.', time:'2h'},
-  {id:'post2', user:'meena', avatar:'https://i.pravatar.cc/150?img=45', location:'Mumbai', img:'https://images.unsplash.com/photo-1520962918287-7448c2878f65?w=1200&q=80', likes:201, caption:'City vibes.', time:'4h'}
-];
-
-const feed = document.getElementById('feed');
-posts.forEach(p => {
-  const art = document.createElement('article');
-  art.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
-  art.innerHTML = `
-    <div class="flex items-center gap-3 p-4">
-      <img src="${p.avatar}" class="w-10 h-10 rounded-full"/>
-      <div class="flex-1">
-        <p class="font-semibold text-sm">${p.user}</p>
-        <p class="text-xs text-gray-500">${p.location}</p>
+  <!-- Feed -->
+  <main class="feed">
+    <!-- Post 1 -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/100?img=1" alt="Profile" class="profile-pic">
+        <span class="username">alex_j</span>
       </div>
-    </div>
-    <img src="${p.img}" class="w-full"/>
-    <div class="px-4 py-3">
-      <p class="font-semibold text-sm">${p.likes} likes</p>
-      <p class="text-sm mt-1"><span class="font-semibold">${p.user}</span> ${p.caption}</p>
-      <p class="text-xs text-gray-400 mt-2">${p.time}</p>
-    </div>
-  `;
-  feed.appendChild(art);
-});
-</script>
+      <img src="https://picsum.photos/id/1015/600/400" alt="Post" class="post-img">
+      <p class="post-text">Exploring the mountains this weekend 🏔️ #nature #adventure</p>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </article>
+
+    <!-- Post 2 -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/100?img=2" alt="Profile" class="profile-pic">
+        <span class="username">sophie_l</span>
+      </div>
+      <img src="https://picsum.photos/id/1025/600/400" alt="Post" class="post-img">
+      <p class="post-text">My new painting is finally done 🎨✨</p>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </article>
+
+    <!-- Post 3 -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/100?img=3" alt="Profile" class="profile-pic">
+        <span class="username">mike_d</span>
+      </div>
+      <img src="https://picsum.photos/id/1035/600/400" alt="Post" class="post-img">
+      <p class="post-text">Sunset vibes 🌅</p>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </article>
+
+    <!-- Post 4 -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/100?img=4" alt="Profile" class="profile-pic">
+        <span class="username">luna_rose</span>
+      </div>
+      <img src="https://picsum.photos/id/1043/600/400" alt="Post" class="post-img">
+      <p class="post-text">Coffee mornings are the best ☕</p>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </article>
+
+    <!-- Post 5 -->
+    <article class="post">
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/100?img=5" alt="Profile" class="profile-pic">
+        <span class="username">nathan_k</span>
+      </div>
+      <img src="https://picsum.photos/id/1050/600/400" alt="Post" class="post-img">
+      <p class="post-text">Weekend getaway at the beach 🏖️ #relax</p>
+      <div class="post-actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </article>
+  </main>
+
+  <!-- Floating Action Button -->
+  <button class="fab">＋</button>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active">🏠</button>
+    <button class="nav-btn">🔍</button>
+    <button class="nav-btn">👤</button>
+    <button class="nav-btn">⚙️</button>
+  </nav>
 
 </body>
 </html>
