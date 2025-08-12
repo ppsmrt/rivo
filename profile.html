@@ -33,7 +33,7 @@
 </header>
 
 <!-- Profile Info -->
-<section class="max-w-3xl mx-auto w-full px-4 py-6">
+<section class="max-w-3xl mx-auto w-full px-4 py-6" id="profile-info">
   <div class="flex items-center gap-6">
     <img src="https://i.pravatar.cc/150?u=you" class="w-20 h-20 rounded-full object-cover border" id="profile-avatar" />
     <div class="flex-1 flex justify-around text-center">
@@ -42,17 +42,29 @@
         <p class="text-sm text-gray-500">Posts</p>
       </div>
       <div>
-        <p class="font-semibold text-lg">128</p>
+        <p class="font-semibold text-lg" id="follower-count">0</p>
         <p class="text-sm text-gray-500">Followers</p>
       </div>
       <div>
-        <p class="font-semibold text-lg">200</p>
+        <p class="font-semibold text-lg" id="following-count">0</p>
         <p class="text-sm text-gray-500">Following</p>
       </div>
     </div>
   </div>
-  <p class="mt-4 font-semibold" id="profile-username">your_username</p>
-  <p class="text-sm text-gray-600">Welcome to my profile!</p>
+
+  <!-- Additional profile details -->
+  <div class="mt-4 space-y-1 text-sm text-gray-700">
+    <p class="font-semibold" id="full-name">Full Name</p>
+    <p id="profile-username">@username</p>
+    <p id="profile-email">email@example.com</p>
+    <p class="text-xs text-gray-500">Joined: <span id="profile-joined">--</span></p>
+  </div>
+</section>
+
+<!-- User's Own Feeds -->
+<section class="max-w-3xl mx-auto w-full px-4">
+  <h2 class="font-semibold text-lg mb-2">Your Posts</h2>
+  <div id="profile-posts" class="grid grid-cols-3 gap-1 pb-20"></div>
 </section>
 
 <!-- Posts Grid -->
@@ -202,6 +214,49 @@
     });
     document.getElementById('comment-input').value = "";
   };
+
+// Check login status
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "signin.html";
+    return;
+  }
+
+  const uid = user.uid;
+
+  // Load profile details
+  db.ref("users/" + uid).once("value").then(snapshot => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      document.getElementById('full-name').textContent = data.fullName || "Full Name";
+      document.getElementById('profile-username').textContent = '@' + (data.username || "username");
+      document.getElementById('profile-email').textContent = data.email || "email@example.com";
+      document.getElementById('profile-joined').textContent = data.joined || "--";
+      document.getElementById('profile-avatar').src = data.avatar || `https://i.pravatar.cc/150?u=${uid}`;
+    }
+  });
+
+  // Load user's posts
+  db.ref("posts").orderByChild("uid").equalTo(uid).on("value", snap => {
+    const postsGrid = document.getElementById('profile-posts');
+    postsGrid.innerHTML = "";
+    let count = 0;
+    snap.forEach(child => {
+      const post = child.val();
+      const postId = child.key;
+      const imgEl = document.createElement("img");
+      imgEl.src = post.img;
+      imgEl.className = "w-full h-full object-cover cursor-pointer";
+      imgEl.onclick = () => openModal(postId, post);
+      const wrapper = document.createElement("div");
+      wrapper.className = "aspect-square overflow-hidden";
+      wrapper.appendChild(imgEl);
+      postsGrid.appendChild(wrapper);
+      count++;
+    });
+    document.getElementById('post-count').textContent = count;
+  });
+});
 </script>
 
 </body>
