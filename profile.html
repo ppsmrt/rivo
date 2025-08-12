@@ -27,10 +27,27 @@
 <!-- Header -->
 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
   <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
-    <h1 class="text-xl font-semibold">your_username</h1>
-    <i class="fa-solid fa-bars text-xl"></i>
+    <h1 id="header-fullname" class="text-xl font-semibold">Loading...</h1>
+    <a href="settings.html"><i class="fa-solid fa-bars text-xl"></i></a>
   </div>
 </header>
+
+<script>
+  // Make sure Firebase is initialized before this script runs
+
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      const uid = user.uid;
+      firebase.database().ref("users/" + uid + "/fullname").once("value")
+        .then(snapshot => {
+          document.getElementById("header-fullname").textContent = snapshot.val() || "Unknown User";
+        });
+    } else {
+      // Not logged in — redirect to login page
+      window.location.href = "signin.html";
+    }
+  });
+</script>
 
 <!-- Profile Info -->
 <section class="max-w-3xl mx-auto w-full px-4 py-6" id="profile-info">
