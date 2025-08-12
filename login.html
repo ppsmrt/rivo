@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign In - Rivo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body class="min-h-screen flex flex-col text-gray-900 bg-gray-50">
+
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+    <h1 class="text-xl font-semibold">Sign In</h1>
+  </div>
+</header>
+
+<!-- Login Form -->
+<section class="max-w-md mx-auto mt-10 px-4 w-full">
+  <div class="bg-white p-6 rounded-xl shadow">
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" class="w-full border rounded-lg p-2 mt-1 outline-none focus:ring-2 focus:ring-rose-400" placeholder="you@example.com" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" class="w-full border rounded-lg p-2 mt-1 outline-none focus:ring-2 focus:ring-rose-400" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="w-full bg-rose-500 text-white py-2 rounded-lg font-semibold hover:bg-rose-600">Sign In</button>
+    </form>
+    <p class="text-sm text-gray-500 mt-4">Don't have an account? <a href="signup.html" class="text-rose-500 font-medium">Sign Up</a></p>
+  </div>
+</section>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+  <div class="w-full max-w-3xl px-4">
+    <div class="nav-glass rounded-2xl shadow-lg flex justify-between items-center px-6 py-2 pointer-events-auto">
+      <a href="index.html" class="text-2xl text-gray-700"><i class="fa-solid fa-house"></i></a>
+      <a href="search.html" class="text-2xl text-gray-700"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <a href="post.html" class="text-2xl text-rose-500"><i class="fa-solid fa-square-plus"></i></a>
+      <a href="chat.html" class="text-2xl text-gray-700"><i class="fa-regular fa-paper-plane"></i></a>
+      <a href="profile.html" class="text-2xl text-gray-700"><img src="https://i.pravatar.cc/40?u=you" class="w-6 h-6 rounded-full object-cover"/></a>
+    </div>
+  </div>
+</nav>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzi5YSMFfgnJF2xT29Yt8_PbpTyTt7Bdk",
+    authDomain: "rivo-bea46.firebaseapp.com",
+    databaseURL: "https://rivo-bea46-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rivo-bea46",
+    storageBucket: "rivo-bea46.firebasestorage.app",
+    messagingSenderId: "9253016287",
+    appId: "1:9253016287:web:f584476c79e78215f40f6a",
+    measurementId: "G-RY85VPHXVP"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  document.getElementById("login-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        const uid = userCredential.user.uid;
+        db.ref("users/" + uid).once("value").then(snapshot => {
+          if (snapshot.exists()) {
+            window.location.href = "profile.html";
+          } else {
+            alert("User data not found!");
+          }
+        });
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  });
+</script>
+</body>
+</html>
